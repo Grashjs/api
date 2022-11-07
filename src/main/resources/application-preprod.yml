@@ -9,5 +9,3 @@ spring:
   sql:
     init:
       data-locations: classpath:data-preprod.sql
-api:
-  host: https://api-grash.herokuapp.com
