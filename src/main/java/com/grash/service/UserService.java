@@ -84,6 +84,7 @@ public class UserService {
                 userRepository.save(user);
                 return new SuccessResponse(true, jwtTokenProvider.createToken(user.getEmail(), Arrays.asList(user.getRole().getRoleType())));
             } else {
+                /*
                 //send mail
                 String token = UUID.randomUUID().toString();
                 String link = API_HOST + "/auth/activate-account?token=" + token;
@@ -95,6 +96,10 @@ public class UserService {
                 userRepository.save(user);
 
                 return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");
+                 */
+                user.setEnabled(true);
+                userRepository.save(user);
+                return new SuccessResponse(true, jwtTokenProvider.createToken(user.getEmail(), Arrays.asList(user.getRole().getRoleType())));
             }
         } else {
             throw new CustomException("Email is already in use", HttpStatus.UNPROCESSABLE_ENTITY);
