@@ -6,10 +6,10 @@ import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +20,9 @@ import javax.validation.Valid;
 @Api(tags = "auth")
 @RequiredArgsConstructor
 public class AuthController {
+
+    @Autowired
+    private ClientRegistrationRepository clientRegistrationRepository;
 
     private final UserService userService;
     private final VerificationTokenService verificationTokenService;
