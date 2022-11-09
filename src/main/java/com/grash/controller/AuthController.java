@@ -7,15 +7,23 @@ import com.grash.service.VerificationTokenService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,12 +31,30 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class AuthController {
 
-    @Autowired
-    private ClientRegistrationRepository clientRegistrationRepository;
-
     private final UserService userService;
     private final VerificationTokenService verificationTokenService;
     private final UserMapper userMapper;
+
+    @Bean
+    public ReactiveClientRegistrationRepository reactiveClientRegistrationRepository(OAuth2ClientProperties oAuth2ClientProperties) {
+        List<ClientRegistration> clientRegistrations = new ArrayList<>();
+
+        // because autoconfigure does not work for an unknown reason, here the ClientRegistrations are manually configured based on the application.yml
+        oAuth2ClientProperties.getRegistration()
+                .forEach((k, v) -> {
+                    String tokenUri = oAuth2ClientProperties.getProvider().get(k).getTokenUri();
+                    ClientRegistration clientRegistration = ClientRegistration
+                            .withRegistrationId(k)
+                            .tokenUri(tokenUri)
+                            .clientId(v.getClientId())
+                            .clientSecret(v.getClientSecret())
+                            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                            .build();
+                    clientRegistrations.add(clientRegistration);
+                });
+
+        return new InMemoryReactiveClientRegistrationRepository(clientRegistrations);
+    }
 
     @PostMapping(
             path = "/signin",
