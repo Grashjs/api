@@ -1,13 +1,28 @@
-spring:
-  datasource:
-    # url: jdbc:h2:mem:test_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    url: jdbc:postgresql://${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PWD}
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-  sql:
-    init:
-      data-locations: classpath:data-preprod.sql
+provider:
+  host: https://20.123.198.171:9443
+
+  spring:
+    security:
+    oauth2:
+      client:
+      registration:
+        wso2:
+        client-name : WSO2 Identity Server
+        client-id: C4OdpgNNOJbnFPyXOry6sNDEGtca
+        client-secret: PEobHr7BYGc8hg5xiE6bXMTH99Aa
+        authorization-grant-type: authorization_code
+        scope: openid
+      provider:
+        wso2:
+        issuer-uri: ${provider.host}/oauth2/oidcdiscovery
+        datasource:
+          url: jdbc:postgresql://${DB_URL}
+          username: ${DB_USER}
+          password: ${DB_PWD}
+        jpa:
+          properties:
+            hibernate:
+              dialect: org.hibernate.dialect.PostgreSQLDialect
+        sql:
+          init:
+            data-locations: classpath:data-preprod.sql
