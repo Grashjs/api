@@ -25,10 +25,10 @@ public class AuthController {
     private final VerificationTokenService verificationTokenService;
     private final UserMapper userMapper;
 
-    @GetMapping("/signin")
-    public String getLoginPage(@RequestBody UserLoginRequest userLoginRequest) {
-        return "redirect:/oauth2/authorization/wso2";
-    }
+//    @GetMapping("/signin")
+//    public String getLoginPage(@RequestBody UserLoginRequest userLoginRequest) {
+//        return "redirect:/oauth2/authorization/wso2";
+//    }
 
     @PostMapping(
             path = "/signin",
