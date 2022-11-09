@@ -7,7 +7,9 @@ import com.grash.service.VerificationTokenService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.web.bind.annotation.*;
@@ -39,15 +41,15 @@ public class AuthController {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 422, message = "Invalid credentials")
     })
-    public String login(
-            @ApiParam("AuthLoginRequest") @RequestBody UserLoginRequest userLoginRequest) {
-        return "redirect:/oauth2/authorization/wso2";
-    }
-//    public ResponseEntity<AuthResponse> login(
-//            @ApiParam("AuthLoginRequest") @Valid @RequestBody UserLoginRequest userLoginRequest) {
-//        AuthResponse authResponse = new AuthResponse(userService.signin(userLoginRequest.getEmail(), userLoginRequest.getPassword(), userLoginRequest.getType()));
-//        return new ResponseEntity<>(authResponse, HttpStatus.OK);
+//    public String login(
+//            @ApiParam("AuthLoginRequest") @RequestBody UserLoginRequest userLoginRequest) {
+//        return "redirect:/oauth2/authorization/wso2";
 //    }
+    public ResponseEntity<AuthResponse> login(
+            @ApiParam("AuthLoginRequest") @Valid @RequestBody UserLoginRequest userLoginRequest) {
+        AuthResponse authResponse = new AuthResponse(userService.signin(userLoginRequest.getEmail(), userLoginRequest.getPassword(), userLoginRequest.getType()));
+        return new ResponseEntity<>(authResponse, HttpStatus.OK);
+    }
 
     @PostMapping(
             path = "/signup",
