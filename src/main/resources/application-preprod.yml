@@ -1,18 +1,4 @@
 spring:
-  security:
-  oauth2:
-    client:
-    registration:
-      wso2:
-      client-name: WSO2 Identity Server
-      client-id: C4OdpgNNOJbnFPyXOry6sNDEGtca
-      client-secret: PEobHr7BYGc8hg5xiE6bXMTH99Aa
-      authorization-grant-type: authorization_code
-      scope: openid
-    provider:
-      wso2:
-      issuer-uri: https://20.123.198.171:9443//oauth2/token
-
   datasource:
     # url: jdbc:h2:mem:test_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     url: jdbc:postgresql://${DB_URL}
