@@ -1,6 +1,7 @@
 package com.grash.dto;
 
 import com.grash.model.*;
+import com.grash.model.abstracts.Worker;
 import com.grash.model.enums.Priority;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,11 +28,9 @@ public class WorkOrderBasePatchDTO {
 
     private Team team;
 
-    private OwnUser primaryUser;
+    private Worker primaryUser;
 
-    private List<OwnUser> assignedTo;
-
-    private List<Customer> customers;
+    private List<Worker> assignedTo;
 
     private List<File> files;
 

@@ -1,6 +1,7 @@
 package com.grash.dto;
 
 import com.grash.model.WorkOrderCategory;
+import com.grash.model.abstracts.Worker;
 import com.grash.model.enums.Priority;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,11 +27,9 @@ public class WorkOrderBaseShowDTO extends AuditShowDTO {
 
     private TeamMiniDTO team;
 
-    private UserMiniDTO primaryUser;
+    private Worker primaryUser;
 
-    private List<UserMiniDTO> assignedTo;
-
-    private List<CustomerMiniDTO> customers;
+    private List<Worker> assignedTo;
 
     private AssetMiniDTO asset;
 

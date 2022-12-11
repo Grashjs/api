@@ -1,7 +1,7 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.grash.model.abstracts.BasicInfos;
+import com.grash.model.abstracts.Worker;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,17 +12,17 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-public class Customer extends BasicInfos {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Customer extends Worker {
 
     private String customerType;
 
     private String description;
 
-    private double rate;
-
+    private String name;
+    private String address;
+    private String phone;
+    private String website;
+    private String email;
 
     private String billingName;
 

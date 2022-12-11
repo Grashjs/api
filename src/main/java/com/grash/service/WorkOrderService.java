@@ -5,6 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.abstracts.WorkOrderBase;
+import com.grash.model.abstracts.Worker;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderHistoryRepository;
@@ -107,12 +108,15 @@ public class WorkOrderService {
     public void notify(WorkOrder workOrder) {
 
         String message = "WorkOrder " + workOrder.getTitle() + " has been assigned to you";
-        if (workOrder.getPrimaryUser() != null) {
-            notificationService.create(new Notification(message, workOrder.getPrimaryUser(), NotificationType.WORK_ORDER, workOrder.getId()));
+        if (workOrder.getPrimaryUser() != null && Worker.isUser(workOrder.getPrimaryUser())) {
+            notificationService.create(new Notification(message, (OwnUser) workOrder.getPrimaryUser(), NotificationType.WORK_ORDER, workOrder.getId()));
         }
         if (workOrder.getAssignedTo() != null) {
-            workOrder.getAssignedTo().forEach(assignedUser ->
-                    notificationService.create(new Notification(message, assignedUser, NotificationType.WORK_ORDER, workOrder.getId())));
+            workOrder.getAssignedTo().forEach(assignedUser -> {
+                if (Worker.isUser(assignedUser)) {
+                    notificationService.create(new Notification(message, (OwnUser) assignedUser, NotificationType.WORK_ORDER, workOrder.getId()));
+                }
+            });
         }
         if (workOrder.getTeam() != null) {
             workOrder.getTeam().getUsers().forEach(user ->
@@ -122,12 +126,14 @@ public class WorkOrderService {
 
     public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder) {
         String message = "WorkOrder " + newWorkOrder.getTitle() + " has been assigned to you";
-        if (newWorkOrder.getPrimaryUser() != null && !newWorkOrder.getPrimaryUser().getId().equals(oldWorkOrder.getPrimaryUser().getId())) {
-            notificationService.create(new Notification(message, newWorkOrder.getPrimaryUser(), NotificationType.WORK_ORDER, newWorkOrder.getId()));
+        if (newWorkOrder.getPrimaryUser() != null
+                && !newWorkOrder.getPrimaryUser().getId().equals(oldWorkOrder.getPrimaryUser().getId())
+                && Worker.isUser(newWorkOrder.getPrimaryUser())) {
+            notificationService.create(new Notification(message, (OwnUser) newWorkOrder.getPrimaryUser(), NotificationType.WORK_ORDER, newWorkOrder.getId()));
         }
         if (newWorkOrder.getAssignedTo() != null) {
             List<OwnUser> newUsers = newWorkOrder.getAssignedTo().stream().filter(
-                    user -> oldWorkOrder.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
+                    user -> oldWorkOrder.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId())) && Worker.isUser(user)).map(worker -> (OwnUser) worker).collect(Collectors.toList());
             newUsers.forEach(newUser ->
                     notificationService.create(new Notification(message, newUser, NotificationType.WORK_ORDER, newWorkOrder.getId())));
         }

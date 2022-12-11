@@ -4,6 +4,7 @@ import com.grash.dto.PreventiveMaintenancePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.model.*;
+import com.grash.model.abstracts.Worker;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.PreventiveMaintenanceRepository;
@@ -95,12 +96,15 @@ public class PreventiveMaintenanceService {
     public void notify(PreventiveMaintenance preventiveMaintenance) {
 
         String message = "PreventiveMaintenance " + preventiveMaintenance.getTitle() + " has been assigned to you";
-        if (preventiveMaintenance.getPrimaryUser() != null) {
-            notificationService.create(new Notification(message, preventiveMaintenance.getPrimaryUser(), NotificationType.PREVENTIVE_MAINTENANCE, preventiveMaintenance.getId()));
+        if (preventiveMaintenance.getPrimaryUser() != null && Worker.isUser(preventiveMaintenance.getPrimaryUser())) {
+            notificationService.create(new Notification(message, (OwnUser) preventiveMaintenance.getPrimaryUser(), NotificationType.PREVENTIVE_MAINTENANCE, preventiveMaintenance.getId()));
         }
         if (preventiveMaintenance.getAssignedTo() != null) {
-            preventiveMaintenance.getAssignedTo().forEach(assignedUser ->
-                    notificationService.create(new Notification(message, assignedUser, NotificationType.PREVENTIVE_MAINTENANCE, preventiveMaintenance.getId())));
+            preventiveMaintenance.getAssignedTo().forEach(assignedUser -> {
+                if (Worker.isUser(assignedUser)) {
+                    notificationService.create(new Notification(message, (OwnUser) assignedUser, NotificationType.PREVENTIVE_MAINTENANCE, preventiveMaintenance.getId()));
+                }
+            });
         }
         if (preventiveMaintenance.getTeam() != null) {
             preventiveMaintenance.getTeam().getUsers().forEach(user ->
@@ -110,12 +114,14 @@ public class PreventiveMaintenanceService {
 
     public void patchNotify(PreventiveMaintenance oldPreventiveMaintenance, PreventiveMaintenance newPreventiveMaintenance) {
         String message = "PreventiveMaintenance " + newPreventiveMaintenance.getTitle() + " has been assigned to you";
-        if (newPreventiveMaintenance.getPrimaryUser() != null && !newPreventiveMaintenance.getPrimaryUser().getId().equals(oldPreventiveMaintenance.getPrimaryUser().getId())) {
-            notificationService.create(new Notification(message, newPreventiveMaintenance.getPrimaryUser(), NotificationType.PREVENTIVE_MAINTENANCE, newPreventiveMaintenance.getId()));
+        if (newPreventiveMaintenance.getPrimaryUser() != null
+                && !newPreventiveMaintenance.getPrimaryUser().getId().equals(oldPreventiveMaintenance.getPrimaryUser().getId())
+                && Worker.isUser(newPreventiveMaintenance.getPrimaryUser())) {
+            notificationService.create(new Notification(message, (OwnUser) newPreventiveMaintenance.getPrimaryUser(), NotificationType.PREVENTIVE_MAINTENANCE, newPreventiveMaintenance.getId()));
         }
         if (newPreventiveMaintenance.getAssignedTo() != null) {
             List<OwnUser> newUsers = newPreventiveMaintenance.getAssignedTo().stream().filter(
-                    user -> oldPreventiveMaintenance.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
+                    user -> oldPreventiveMaintenance.getAssignedTo().stream().noneMatch(user1 -> user1.getId().equals(user.getId())) && Worker.isUser(user)).map(user -> (OwnUser) user).collect(Collectors.toList());
             newUsers.forEach(newUser ->
                     notificationService.create(new Notification(message, newUser, NotificationType.PREVENTIVE_MAINTENANCE, newPreventiveMaintenance.getId())));
         }

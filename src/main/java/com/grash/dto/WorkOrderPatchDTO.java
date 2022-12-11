@@ -1,40 +1,19 @@
 package com.grash.dto;
 
-import com.grash.model.*;
-import com.grash.model.enums.Priority;
+import com.grash.model.File;
+import com.grash.model.OwnUser;
 import com.grash.model.enums.Status;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Collection;
 import java.util.Date;
 
 @Data
 @NoArgsConstructor
-public class WorkOrderPatchDTO {
+public class WorkOrderPatchDTO extends WorkOrderBasePatchDTO {
     private OwnUser completedBy;
     private Date completedOn;
     private boolean archived;
-    private Date dueDate;
     private Status status;
-    private Priority priority;
-    private int estimatedDuration;
-    private String description;
-    private String title;
-    private boolean requiredSignature;
     private File signature;
-
-    private Location location;
-
-    private Team team;
-
-    private OwnUser primaryUser;
-
-    private Asset asset;
-
-    private Collection<OwnUser> assignedTo;
-
-    private Collection<Customer> customers;
-
-    private Collection<File> files;
 }

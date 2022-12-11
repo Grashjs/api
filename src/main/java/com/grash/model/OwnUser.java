@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.model.abstracts.Worker;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,18 +14,12 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-public class OwnUser {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
+public class OwnUser extends Worker {
     @NotNull
     private String firstName;
 
     @NotNull
     private String lastName;
-
-    private double rate;
 
     @Column(unique = true)
     @NotNull
@@ -47,9 +42,6 @@ public class OwnUser {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private boolean enabled;
-
-    @ManyToOne
-    private Company company;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private boolean ownsCompany;
@@ -124,7 +116,7 @@ public class OwnUser {
     private List<WorkOrder> workOrders = new ArrayList<>();
 
     public int hashCode() {
-        return Math.toIntExact(id);
+        return Math.toIntExact(this.getId());
     }
 }
 
