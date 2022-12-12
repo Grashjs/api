@@ -1,4 +1,17 @@
 spring:
+  security:
+    oauth2:
+      client:
+      registration:
+        wso2:
+        client-name: WSO2 Identity Server
+        client-id: A2UHKWNjFXnWrHGxupX22wgXBKka
+        client-secret: GOttUrhyghii0Xum4OlHMMIZme8a
+        authorization-grant-type: authorization_code
+        scope: openid
+      provider:
+        wso2:
+        issuer-uri: https://idp.grash-cmms.com:9443/oauth2/token
   #    tomcat:
   #      max-wait: 20000
   #      max-active: 50

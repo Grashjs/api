@@ -36,6 +36,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // Entry points
         http.authorizeRequests()//
                 .antMatchers("/").permitAll()
+                .antMatchers("/login").permitAll()
                 .antMatchers("/checklists").permitAll()
                 .antMatchers("/auth/signin").permitAll()//
                 .antMatchers("/auth/signin").permitAll()//
@@ -47,7 +48,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/auth/activate-account**").permitAll()//
                 .antMatchers("/h2-console/**/**").permitAll()
                 // Disallow everything else..
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+                .and()
+                .oauth2Login().loginPage("/login");
 
         // If a user try to access a resource without having enough permissions
         http.exceptionHandling().accessDeniedPage("/login");
