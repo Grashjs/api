@@ -31,7 +31,7 @@ public class AuthController {
 //    }
 
     @PostMapping(
-            path = "/signin",
+            path = "/login",
             produces = {
                     MediaType.APPLICATION_JSON_VALUE
             }
@@ -41,10 +41,9 @@ public class AuthController {
             @ApiResponse(code = 400, message = "Something went wrong"),
             @ApiResponse(code = 422, message = "Invalid credentials")
     })
-    public ResponseEntity<AuthResponse> login(
+    public String login(
             @ApiParam("AuthLoginRequest") @Valid @RequestBody UserLoginRequest userLoginRequest) {
-        AuthResponse authResponse = new AuthResponse(userService.signin(userLoginRequest.getEmail(), userLoginRequest.getPassword(), userLoginRequest.getType()));
-        return new ResponseEntity<>(authResponse, HttpStatus.OK);
+        return "redirect:/oauth2/authorization/wso2";
     }
 
     @PostMapping(
