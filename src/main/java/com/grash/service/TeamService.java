@@ -7,8 +7,8 @@ import com.grash.model.Company;
 import com.grash.model.Notification;
 import com.grash.model.OwnUser;
 import com.grash.model.Team;
-import com.grash.model.enums.BasicPermission;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TeamRepository;
 import lombok.RequiredArgsConstructor;
@@ -69,13 +69,13 @@ public class TeamService {
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
 
-        boolean second = user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_PEOPLE_AND_TEAMS);
+        boolean second = user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS);
 
         return first && second && canPatch(user, teamMapper.toDto(teamReq));
     }
 
     public boolean canPatch(OwnUser user, TeamPatchDTO teamReq) {
-        return user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_PEOPLE_AND_TEAMS);
+        return user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS);
     }
 
     public void notify(Team team) {

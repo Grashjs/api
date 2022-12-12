@@ -4,16 +4,14 @@ import com.grash.model.enums.WorkOrderMeterTriggerCondition;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @NoArgsConstructor
-public class WorkOrderMeterTriggerPatchDTO {
-    private boolean isOneTime;
+public class WorkOrderMeterTriggerPatchDTO extends WorkOrderBasePatchDTO {
+    private boolean recurrent;
 
-    private Date date;
+    private String name;
 
-    private WorkOrderMeterTriggerCondition workOrderMeterTriggerCondition;
+    private WorkOrderMeterTriggerCondition triggerCondition;
 
     private int value;
 

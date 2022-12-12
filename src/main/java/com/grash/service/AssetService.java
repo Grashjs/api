@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -21,22 +23,26 @@ import java.util.stream.Collectors;
 public class AssetService {
     private final AssetRepository assetRepository;
     private final LocationService locationService;
-    private final ImageService imageService;
+    private final FileService fileService;
     private final AssetCategoryService assetCategoryService;
     private final DeprecationService deprecationService;
     private final UserService userService;
     private final CompanyService companyService;
     private final NotificationService notificationService;
     private final AssetMapper assetMapper;
+    private final EntityManager em;
 
     public Asset create(Asset Asset) {
         return assetRepository.save(Asset);
     }
 
+    @Transactional
     public Asset update(Long id, AssetPatchDTO asset) {
         if (assetRepository.existsById(id)) {
             Asset savedAsset = assetRepository.findById(id).get();
-            return assetRepository.save(assetMapper.updateAsset(savedAsset, asset));
+            Asset patchedAsset = assetRepository.saveAndFlush(assetMapper.updateAsset(savedAsset, asset));
+            em.refresh(patchedAsset);
+            return patchedAsset;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -74,11 +80,9 @@ public class AssetService {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(assetReq.getCompany().getId());
-        Optional<Location> optionalLocation = locationService.findById(assetReq.getLocation().getId());
 
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-        boolean second = optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
 
         boolean third = assetReq.getAssignedTo() == null || assetReq.getAssignedTo().stream().allMatch(user1 -> {
             Optional<OwnUser> optionalUser = userService.findById(user1.getId());
@@ -86,14 +90,14 @@ public class AssetService {
         });
         boolean fourth = assetReq.getParentAsset() == null || (findById(assetReq.getParentAsset().getId()).isPresent() && findById(assetReq.getParentAsset().getId()).get().getCompany().getId().equals(companyId));
 
-        return first && second && third && fourth && canPatch(user, assetMapper.toDto(assetReq));
+        return first && third && fourth && canPatch(user, assetMapper.toDto(assetReq));
     }
 
     public boolean canPatch(OwnUser user, AssetPatchDTO assetReq) {
         Long companyId = user.getCompany().getId();
 
         Optional<Location> optionalLocation = assetReq.getLocation() == null ? Optional.empty() : locationService.findById(assetReq.getLocation().getId());
-        Optional<Image> optionalImage = assetReq.getImage() == null ? Optional.empty() : imageService.findById(assetReq.getImage().getId());
+        Optional<File> optionalImage = assetReq.getImage() == null ? Optional.empty() : fileService.findById(assetReq.getImage().getId());
         Optional<AssetCategory> optionalAssetCategory = assetReq.getCategory() == null ? Optional.empty() : assetCategoryService.findById(assetReq.getCategory().getId());
         Optional<Asset> optionalParentAsset = assetReq.getParentAsset() == null ? Optional.empty() : findById(assetReq.getParentAsset().getId());
         Optional<OwnUser> optionalUser = assetReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(assetReq.getPrimaryUser().getId());
@@ -115,9 +119,8 @@ public class AssetService {
         return second && third && fourth && fifth && sixth && seventh && eighth;
     }
 
-    public void notify(Asset asset) {
+    public void notify(Asset asset, String message) {
 
-        String message = "Asset " + asset.getName() + " has been assigned to you";
         if (asset.getPrimaryUser() != null) {
             notificationService.create(new Notification(message, asset.getPrimaryUser(), NotificationType.ASSET, asset.getId()));
         }
@@ -148,5 +151,9 @@ public class AssetService {
             newTeams.forEach(team -> team.getUsers().forEach(user ->
                     notificationService.create(new Notification(message, user, NotificationType.ASSET, newAsset.getId()))));
         }
+    }
+
+    public Collection<Asset> findByLocation(Long id) {
+        return assetRepository.findByLocation_Id(id);
     }
 }

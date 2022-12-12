@@ -5,7 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.RoleMapper;
 import com.grash.model.OwnUser;
 import com.grash.model.Role;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +63,7 @@ public class RoleService {
         if (roleReq.getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return false;
         }
-        if (user.getRole().getPermissions().contains(BasicPermission.ACCESS_SETTINGS)) {
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
             return canPatch(user, roleMapper.toDto(roleReq));
         } else return false;
     }

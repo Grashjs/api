@@ -62,7 +62,7 @@ public class Part extends CompanyAudit {
     private List<File> files = new ArrayList<>();
 
     @OneToOne
-    private Image image;
+    private File image;
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -85,11 +85,7 @@ public class Part extends CompanyAudit {
                     @Index(name = "idx_part_vendor_vendor_id", columnList = "id_vendor")
             })
     private List<Vendor> vendors = new ArrayList<>();
-
-    @ManyToMany
-    @JsonIgnore
-    private List<WorkOrder> workOrders = new ArrayList<>();
-
+    
     @ManyToMany
     @JsonIgnore
     private List<PreventiveMaintenance> preventiveMaintenances = new ArrayList<>();

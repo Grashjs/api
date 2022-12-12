@@ -10,7 +10,9 @@ import com.grash.repository.MeterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -21,23 +23,25 @@ import java.util.stream.Collectors;
 public class MeterService {
     private final MeterRepository meterRepository;
     private final MeterCategoryService meterCategoryService;
-    private final ImageService imageService;
+    private final FileService fileService;
     private final AssetService assetService;
     private final CompanyService companyService;
     private final LocationService locationService;
-
+    private final EntityManager em;
     private final MeterMapper meterMapper;
-
     private final NotificationService notificationService;
 
     public Meter create(Meter Meter) {
         return meterRepository.save(Meter);
     }
 
+    @Transactional
     public Meter update(Long id, MeterPatchDTO meter) {
         if (meterRepository.existsById(id)) {
             Meter savedMeter = meterRepository.findById(id).get();
-            return meterRepository.save(meterMapper.updateMeter(savedMeter, meter));
+            Meter patchedMeter = meterRepository.saveAndFlush(meterMapper.updateMeter(savedMeter, meter));
+            em.refresh(patchedMeter);
+            return patchedMeter;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -80,7 +84,7 @@ public class MeterService {
         Long companyId = user.getCompany().getId();
 
         Optional<MeterCategory> optionalMeterCategory = meterReq.getMeterCategory() == null ? Optional.empty() : meterCategoryService.findById(meterReq.getMeterCategory().getId());
-        Optional<Image> optionalImage = meterReq.getImage() == null ? Optional.empty() : imageService.findById(meterReq.getImage().getId());
+        Optional<File> optionalImage = meterReq.getImage() == null ? Optional.empty() : fileService.findById(meterReq.getImage().getId());
         Optional<Location> optionalLocation = meterReq.getLocation() == null ? Optional.empty() : locationService.findById(meterReq.getLocation().getId());
 
         //optional fields
@@ -108,5 +112,9 @@ public class MeterService {
             newUsers.forEach(newUser ->
                     notificationService.create(new Notification(message, newUser, NotificationType.ASSET, newMeter.getId())));
         }
+    }
+
+    public Collection<Meter> findByAsset(Long id) {
+        return meterRepository.findByAsset_Id(id);
     }
 }

@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.abstracts.Audit;
 import com.grash.model.enums.NotificationType;
 import lombok.Data;
@@ -19,9 +20,10 @@ public class Notification extends Audit {
     @NotNull
     private String message;
 
-    private boolean isRead;
+    private boolean seen;
 
     @ManyToOne
+    @JsonIgnore
     private OwnUser user;
 
     private NotificationType notificationType;

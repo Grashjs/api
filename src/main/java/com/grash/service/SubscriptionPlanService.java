@@ -43,6 +43,14 @@ public class SubscriptionPlanService {
         return subscriptionPlanRepository.findById(id);
     }
 
+    public Optional<SubscriptionPlan> findByCode(String code) {
+        return subscriptionPlanRepository.findByCode(code);
+    }
+
+    public boolean existByCode(String code) {
+        return subscriptionPlanRepository.existsByCode(code);
+    }
+
     public boolean hasAccess(OwnUser user, SubscriptionPlan subscriptionPlan) {
         return true;
     }

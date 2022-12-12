@@ -1,6 +1,6 @@
 package com.grash.dto;
 
-import com.grash.model.Image;
+import com.grash.model.File;
 import com.grash.model.MeterCategory;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +22,7 @@ public class MeterShowDTO {
 
     private MeterCategory meterCategory;
 
-    private Image image;
+    private File image;
 
     private List<UserMiniDTO> users = new ArrayList<>();
 

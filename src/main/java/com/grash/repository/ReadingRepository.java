@@ -10,4 +10,6 @@ import java.util.Collection;
 public interface ReadingRepository extends JpaRepository<Reading, Long> {
     @Query("SELECT r from Reading r where r.meter.company.id = :x ")
     Collection<Reading> findByCompany_Id(@Param("x") Long id);
+
+    Collection<Reading> findByMeter_Id(Long id);
 }

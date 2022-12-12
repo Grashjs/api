@@ -21,4 +21,5 @@ public interface UserRepository extends JpaRepository<OwnUser, Long> {
 
     Collection<OwnUser> findByCompany_Id(Long id);
 
+    Collection<OwnUser> findByLocation_Id(Long id);
 }

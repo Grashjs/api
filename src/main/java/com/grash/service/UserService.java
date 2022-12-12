@@ -1,13 +1,11 @@
 package com.grash.service;
 
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.UserPatchDTO;
 import com.grash.dto.UserSignupRequest;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
-import com.grash.model.Company;
-import com.grash.model.OwnUser;
-import com.grash.model.Role;
-import com.grash.model.VerificationToken;
+import com.grash.model.*;
 import com.grash.repository.UserRepository;
 import com.grash.repository.VerificationTokenRepository;
 import com.grash.security.JwtTokenProvider;
@@ -23,6 +21,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.*;
@@ -39,13 +38,20 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final Utils utils;
     private final EmailService emailService;
+    private final EmailService2 emailService2;
     private final RoleService roleService;
     private final CompanyService companyService;
+    private final CurrencyService currencyService;
+    private final UserInvitationService userInvitationService;
     private final VerificationTokenRepository verificationTokenRepository;
+    private final SubscriptionPlanService subscriptionPlanService;
+    private final SubscriptionService subscriptionService;
     private final UserMapper userMapper;
 
     @Value("${api.host}")
     private String API_HOST;
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     public String signin(String email, String password, String type) {
         try {
@@ -59,13 +65,18 @@ public class UserService {
         }
     }
 
-    public SuccessResponse signup(OwnUser user) {
+    public SuccessResponse signup(UserSignupRequest userReq) {
+        OwnUser user = userMapper.toModel(userReq);
         if (!userRepository.existsByEmail(user.getEmail())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setUsername(utils.generateStringId());
             if (user.getRole() == null) {
                 //create company with default roles
-                Company company = new Company();
+                Subscription subscription = Subscription.builder().usersCount(3).monthly(true)
+                        .subscriptionPlan(subscriptionPlanService.findByCode("FREE").get()).build();
+                subscriptionService.create(subscription);
+                Company company = new Company(userReq.getCompanyName(), userReq.getEmployeesCount(), subscription);
+                company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());
                 companyService.create(company);
                 user.setOwnsCompany(true);
                 user.setCompany(company);
@@ -73,24 +84,34 @@ public class UserService {
             } else {
                 Optional<Role> optionalRole = roleService.findById(user.getRole().getId());
                 if (optionalRole.isPresent()) {
-                    user.setRole(optionalRole.get());
-                    if (optionalRole.get().getCompanySettings() != null) {
+                    if (userInvitationService.findByRoleAndEmail(optionalRole.get().getId(), user.getEmail()).isEmpty()) {
+                        throw new CustomException("You are not invited to this organization for this role", HttpStatus.NOT_ACCEPTABLE);
+                    } else {
+                        user.setRole(optionalRole.get());
                         user.setCompany(optionalRole.get().getCompanySettings().getCompany());
                     }
+
                 } else throw new CustomException("Role not found", HttpStatus.NOT_ACCEPTABLE);
             }
             if (API_HOST.equals("http://localhost:8080")) {
                 user.setEnabled(true);
                 userRepository.save(user);
-                return new SuccessResponse(true, jwtTokenProvider.createToken(user.getEmail(), Arrays.asList(user.getRole().getRoleType())));
+                return new SuccessResponse(true, jwtTokenProvider.createToken(user.getEmail(), Collections.singletonList(user.getRole().getRoleType())));
             } else {
                 /*
                 //send mail
                 String token = UUID.randomUUID().toString();
                 String link = API_HOST + "/auth/activate-account?token=" + token;
+                Map<String, Object> variables = new HashMap<String, Object>() {{
+                    put("verifyTokenLink", link);
+                    put("featuresLink", frontendUrl + "/#key-features");
+                }};
+                try {
+                    emailService2.sendMessageUsingThymeleafTemplate(user.getEmail(), "Confirmation Email", variables, "signup.html");
+                } catch (MessagingException exception) {
+                    return new SuccessResponse(false, "Couldn't send the email");
 
-                emailService.send(user.getEmail(), "Email de confirmation", emailService.buildEmail("Confirmation", "Confirmez votre  adresse mail", link));
-
+                }
                 VerificationToken newUserToken = new VerificationToken(token, user);
                 verificationTokenRepository.save(newUserToken);
                 userRepository.save(user);
@@ -138,13 +159,6 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public OwnUser update(Long id, UserSignupRequest user) {
-        if (userRepository.existsById(id)) {
-            OwnUser savedUser = userRepository.findById(id).get();
-            return userRepository.save(userMapper.updateUser(savedUser, user));
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
-
     public void enableUser(String email) {
         OwnUser user = userRepository.findUserByEmail(email);
         user.setEnabled(true);
@@ -165,5 +179,40 @@ public class UserService {
 
     public Collection<OwnUser> findByCompany(Long id) {
         return userRepository.findByCompany_Id(id);
+    }
+
+    public Collection<OwnUser> findByLocation(Long id) {
+        return userRepository.findByLocation_Id(id);
+    }
+
+    public void invite(String email, Role role, OwnUser inviter) {
+        if (!userRepository.existsByEmail(email) && Helper.isValidEmailAddress(email)) {
+            userInvitationService.create(new UserInvitation(email, role));
+            Map<String, Object> variables = new HashMap<String, Object>() {{
+                put("joinLink", frontendUrl + "/account/register?" + "email=" + email + "&role=" + role.getId());
+                put("featuresLink", frontendUrl + "/#key-features");
+                put("inviter", inviter.getFirstName() + " " + inviter.getLastName());
+                put("company", inviter.getCompany().getName());
+            }};
+            try {
+                emailService2.sendMessageUsingThymeleafTemplate(email, "Invitation to use Grash", variables, "invite.html");
+            } catch (MessagingException ignored) {
+            }
+        }
+    }
+
+    public OwnUser update(Long id, UserPatchDTO userReq) {
+        if (userRepository.existsById(id)) {
+            OwnUser savedUser = userRepository.findById(id).get();
+            return userRepository.save(userMapper.updateUser(savedUser, userReq));
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public OwnUser save(OwnUser user) {
+        return userRepository.save(user);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 }

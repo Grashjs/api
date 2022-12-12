@@ -8,7 +8,7 @@ import com.grash.mapper.CostCategoryMapper;
 import com.grash.model.CompanySettings;
 import com.grash.model.CostCategory;
 import com.grash.model.OwnUser;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.CostCategoryService;
 import com.grash.service.UserService;
@@ -46,8 +46,10 @@ public class CostCategoryController {
     public Collection<CostCategory> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            CompanySettings companySettings = user.getCompany().getCompanySettings();
-            return costCategoryService.findByCompanySettings(companySettings.getId());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
+                CompanySettings companySettings = user.getCompany().getCompanySettings();
+                return costCategoryService.findByCompanySettings(companySettings.getId());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return costCategoryService.getAll();
     }
 
@@ -59,13 +61,16 @@ public class CostCategoryController {
             @ApiResponse(code = 404, message = "CostCategory not found")})
     public CostCategory getById(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        Optional<CostCategory> costCategoryOptional = costCategoryService.findById(id);
-        if (costCategoryOptional.isPresent()) {
-            CostCategory costCategory = costCategoryOptional.get();
-            if (costCategoryService.hasAccess(user, costCategory)) {
-                return costCategoryService.findById(id).get();
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
+            Optional<CostCategory> costCategoryOptional = costCategoryService.findById(id);
+            if (costCategoryOptional.isPresent()) {
+                CostCategory costCategory = costCategoryOptional.get();
+                if (costCategoryService.hasAccess(user, costCategory)) {
+                    return costCategoryService.findById(id).get();
+                } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+
     }
 
     @PostMapping("")
@@ -75,7 +80,7 @@ public class CostCategoryController {
             @ApiResponse(code = 403, message = "Access denied")})
     public CostCategory create(@ApiParam("CostCategory") @Valid @RequestBody CategoryPostDTO costCategoryReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_CATEGORIES)) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             CostCategory costCategory = costCategoryMapper.toModel(costCategoryReq);
             costCategory.setCompanySettings(user.getCompany().getCompanySettings());
             return costCategoryService.create(costCategory);
@@ -91,13 +96,16 @@ public class CostCategoryController {
     public CostCategory patch(@ApiParam("CostCategory") @Valid @RequestBody CategoryPatchDTO costCategory, @ApiParam("id") @PathVariable("id") Long id,
                               HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (costCategoryService.findById(id).isPresent()) {
-            CostCategory savedCostCategory = costCategoryService.findById(id).get();
-            if (user.getRole().getPermissions().contains(BasicPermission.CREATE_EDIT_CATEGORIES) &&
-                    user.getRole().getCompanySettings().getId().equals(savedCostCategory.getCompanySettings().getId())) {
-                return costCategoryService.update(id, costCategory);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("CostCategory not found", HttpStatus.NOT_FOUND);
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
+            if (costCategoryService.findById(id).isPresent()) {
+                CostCategory savedCostCategory = costCategoryService.findById(id).get();
+                if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES) &&
+                        user.getRole().getCompanySettings().getId().equals(savedCostCategory.getCompanySettings().getId())) {
+                    return costCategoryService.update(id, costCategory);
+                } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+            } else throw new CustomException("CostCategory not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+
     }
 
     @DeleteMapping("/{id}")
@@ -106,15 +114,16 @@ public class CostCategoryController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "CostCategory not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<CostCategory> optionalCostCategory = costCategoryService.findById(id);
         if (optionalCostCategory.isPresent()) {
             if (user.getCompany().getCompanySettings().getId().equals(optionalCostCategory.get().getCompanySettings().getId())
-                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_CATEGORIES)) {
+                    &&
+                    (optionalCostCategory.get().getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES))) {
                 costCategoryService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("CostCategory not found", HttpStatus.NOT_FOUND);

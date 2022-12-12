@@ -21,9 +21,19 @@ public class WorkOrderHistoryService {
         return workOrderHistoryRepository.save(workOrderHistory);
     }
 
-    public Collection<WorkOrderHistory> getAll() { return workOrderHistoryRepository.findAll(); }
+    public Collection<WorkOrderHistory> getAll() {
+        return workOrderHistoryRepository.findAll();
+    }
 
-    public void delete(Long id){ workOrderHistoryRepository.deleteById(id);}
+    public void delete(Long id) {
+        workOrderHistoryRepository.deleteById(id);
+    }
 
-    public Optional<WorkOrderHistory> findById(Long id) {return workOrderHistoryRepository.findById(id); }
+    public Optional<WorkOrderHistory> findById(Long id) {
+        return workOrderHistoryRepository.findById(id);
+    }
+
+    public Collection<WorkOrderHistory> findByWorkOrder(Long id) {
+        return workOrderHistoryRepository.findByWorkOrder_Id(id);
+    }
 }

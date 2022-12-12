@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class RequestMiniDTO {
+public class RequestMiniDTO extends AuditShowDTO {
 
     private String title;
 

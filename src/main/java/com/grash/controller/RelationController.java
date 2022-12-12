@@ -1,12 +1,15 @@
 package com.grash.controller;
 
 import com.grash.dto.RelationPatchDTO;
+import com.grash.dto.RelationPostDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.Relation;
 import com.grash.model.OwnUser;
+import com.grash.model.Relation;
+import com.grash.model.WorkOrder;
 import com.grash.service.RelationService;
 import com.grash.service.UserService;
+import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -30,6 +33,7 @@ public class RelationController {
 
     private final RelationService relationService;
     private final UserService userService;
+    private final WorkOrderService workOrderService;
 
 
     @GetMapping("")
@@ -42,6 +46,20 @@ public class RelationController {
         OwnUser user = userService.whoami(req);
         Long companyId = user.getCompany().getId();
         return relationService.findByCompany(companyId);
+    }
+
+    @GetMapping("/work-order/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "Relation not found")})
+    public Collection<Relation> getByWorkOrder(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
+        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
+            return relationService.findByWorkOrder(id);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/{id}")
@@ -67,10 +85,15 @@ public class RelationController {
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied")})
-    public Relation create(@ApiParam("Relation") @Valid @RequestBody Relation relationReq, HttpServletRequest req) {
+    public Relation create(@ApiParam("Relation") @Valid @RequestBody RelationPostDTO relationReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (relationService.canCreate(user, relationReq)) {
-            return relationService.create(relationReq);
+            Long parentId = relationReq.getParent().getId();
+            Long childId = relationReq.getChild().getId();
+            if (relationService.findByParentAndChild(parentId, childId).isEmpty() && relationService.findByParentAndChild(childId, parentId).isEmpty()) {
+                return relationService.createPost(relationReq);
+            } else
+                throw new CustomException("There already is a relation between these 2 Work Orders", HttpStatus.NOT_ACCEPTABLE);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 

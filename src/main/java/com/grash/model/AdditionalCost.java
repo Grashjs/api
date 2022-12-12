@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 @Entity
 @Data
@@ -22,6 +23,8 @@ public class AdditionalCost extends Cost {
     private OwnUser assignedTo;
 
     private boolean includeToTotalCost;
+
+    private Date date;
 
     @ManyToOne
     @NotNull

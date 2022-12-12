@@ -69,11 +69,7 @@ public class LaborService {
 
     public boolean canPatch(OwnUser user, LaborPatchDTO laborReq) {
         Long companyId = user.getCompany().getId();
-
-        Optional<OwnUser> optionalUser = laborReq.getWorker() == null ? Optional.empty() : userService.findById(laborReq.getWorker().getId());
-        boolean first = laborReq.getWorker() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
-
-        return first;
+        return true;
     }
 
     public void notify(Labor labor) {

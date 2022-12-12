@@ -76,4 +76,7 @@ public class AdditionalCostService {
         return first;
     }
 
+    public Collection<AdditionalCost> findByWorkOrder(Long id) {
+        return additionalCostRepository.findByWorkOrder_Id(id);
+    }
 }

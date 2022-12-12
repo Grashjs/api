@@ -1,7 +1,6 @@
 package com.grash.controller;
 
 import com.grash.dto.NotificationPatchDTO;
-import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.Notification;
 import com.grash.model.OwnUser;
@@ -14,7 +13,6 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -81,19 +79,5 @@ public class NotificationController {
         } else throw new CustomException("Notification not found", HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    @ApiResponses(value = {//
-            @ApiResponse(code = 500, message = "Something went wrong"), //
-            @ApiResponse(code = 403, message = "Access denied"), //
-            @ApiResponse(code = 404, message = "Notification not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
-        Optional<Notification> optionalNotification = notificationService.findById(id);
-        if (optionalNotification.isPresent()) {
-            notificationService.delete(id);
-            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                    HttpStatus.OK);
-        } else throw new CustomException("Notification not found", HttpStatus.NOT_FOUND);
-    }
 
 }

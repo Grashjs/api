@@ -7,4 +7,6 @@ import java.util.Collection;
 
 public interface MeterRepository extends JpaRepository<Meter, Long> {
     Collection<Meter> findByCompany_Id(Long id);
+
+    Collection<Meter> findByAsset_Id(Long id);
 }

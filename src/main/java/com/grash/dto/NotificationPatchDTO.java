@@ -6,5 +6,5 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class NotificationPatchDTO {
-    private boolean isRead;
+    private boolean seen;
 }

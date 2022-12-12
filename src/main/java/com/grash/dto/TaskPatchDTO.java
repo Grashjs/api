@@ -10,6 +10,8 @@ public class TaskPatchDTO {
 
     private Status status;
 
-    private String note;
+    private String notes;
+
+    private String value;
 
 }

@@ -1,6 +1,7 @@
 package com.grash.mapper;
 
 import com.grash.dto.RelationPatchDTO;
+import com.grash.dto.RelationPostDTO;
 import com.grash.model.Relation;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -11,5 +12,5 @@ public interface RelationMapper {
     Relation updateRelation(@MappingTarget Relation entity, RelationPatchDTO dto);
 
     @Mappings({})
-    RelationPatchDTO toDto(Relation model);
+    RelationPatchDTO toDto(RelationPostDTO model);
 }

@@ -30,7 +30,7 @@ public class Meter extends CompanyAudit {
     private MeterCategory meterCategory;
 
     @OneToOne
-    private Image image;
+    private File image;
 
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

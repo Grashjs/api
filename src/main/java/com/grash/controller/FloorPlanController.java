@@ -4,8 +4,10 @@ import com.grash.dto.FloorPlanPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.FloorPlan;
+import com.grash.model.Location;
 import com.grash.model.OwnUser;
 import com.grash.service.FloorPlanService;
+import com.grash.service.LocationService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.Optional;
 
 @RestController
@@ -29,6 +32,7 @@ public class FloorPlanController {
 
     private final FloorPlanService floorPlanService;
     private final UserService userService;
+    private final LocationService locationService;
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
@@ -44,6 +48,20 @@ public class FloorPlanController {
             if (floorPlanService.hasAccess(user, savedFloorPlan)) {
                 return savedFloorPlan;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/location/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "FloorPlan not found")})
+    public Collection<FloorPlan> getByLocation(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<Location> optionalLocation = locationService.findById(id);
+        if (optionalLocation.isPresent() && locationService.hasAccess(user, optionalLocation.get())) {
+            return floorPlanService.findByLocation(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

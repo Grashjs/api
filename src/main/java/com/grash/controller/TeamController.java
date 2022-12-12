@@ -1,13 +1,14 @@
 package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.TeamMiniDTO;
 import com.grash.dto.TeamPatchDTO;
 import com.grash.dto.TeamShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TeamMapper;
-import com.grash.model.Team;
 import com.grash.model.OwnUser;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.Team;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.TeamService;
 import com.grash.service.UserService;
@@ -45,9 +46,23 @@ public class TeamController {
             @ApiResponse(code = 404, message = "TeamCategory not found")})
     public Collection<TeamShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return teamService.findByCompany(user.getCompany().getId()).stream().map(teamMapper::toShowDto).collect(Collectors.toList());
-        } else return teamService.getAll().stream().map(teamMapper::toShowDto).collect(Collectors.toList());
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+            if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+                return teamService.findByCompany(user.getCompany().getId()).stream().map(teamMapper::toShowDto).collect(Collectors.toList());
+            } else return teamService.getAll().stream().map(teamMapper::toShowDto).collect(Collectors.toList());
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+
+    }
+
+    @GetMapping("/mini")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AssetCategory not found")})
+    public Collection<TeamMiniDTO> getMini(HttpServletRequest req) {
+        OwnUser team = userService.whoami(req);
+        return teamService.findByCompany(team.getCompany().getId()).stream().map(teamMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -74,7 +89,7 @@ public class TeamController {
             @ApiResponse(code = 403, message = "Access denied")})
     public TeamShowDTO create(@ApiParam("Team") @Valid @RequestBody Team teamReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (teamService.canCreate(user, teamReq)) {
+        if (teamService.canCreate(user, teamReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             Team savedTeam = teamService.create(teamReq);
             teamService.notify(savedTeam);
             return teamMapper.toShowDto(savedTeam);
@@ -114,7 +129,7 @@ public class TeamController {
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
             if (teamService.hasAccess(user, savedTeam)
-                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_PEOPLE_AND_TEAMS)) {
+                    && (savedTeam.getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS))) {
                 teamService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

@@ -6,6 +6,7 @@ public enum RelationType {
     RELATED_TO,
     SPLIT_TO,
     SPLIT_FROM,
-    BLOCKED_BY
+    BLOCKED_BY,
+    BLOCKS
 
 }

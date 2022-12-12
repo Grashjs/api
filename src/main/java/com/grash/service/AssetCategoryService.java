@@ -22,8 +22,12 @@ public class AssetCategoryService {
     private final CompanySettingsService companySettingsService;
     private final AssetCategoryMapper assetCategoryMapper;
 
-    public AssetCategory create(AssetCategory AssetCategory) {
-        return assetCategoryRepository.save(AssetCategory);
+    public AssetCategory create(AssetCategory assetCategory) {
+        Optional<AssetCategory> categoryWithSameName = assetCategoryRepository.findByName(assetCategory.getName());
+        if(categoryWithSameName.isPresent()) {
+            throw new CustomException("AssetCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
+        }
+        return assetCategoryRepository.save(assetCategory);
     }
 
     public AssetCategory update(Long id, CategoryPatchDTO assetCategory) {

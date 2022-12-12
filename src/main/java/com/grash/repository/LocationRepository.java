@@ -7,4 +7,6 @@ import java.util.Collection;
 
 public interface LocationRepository extends JpaRepository<Location, Long> {
     Collection<Location> findByCompany_Id(Long id);
+
+    Collection<Location> findByParentLocation_Id(Long id);
 }

@@ -10,7 +10,9 @@ import com.grash.repository.PartRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -20,23 +22,39 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PartService {
     private final PartRepository partRepository;
-    private final ImageService imageService;
+    private final FileService fileService;
     private final AssetService assetService;
     private final CompanyService companyService;
     private final LocationService locationService;
     private final PartMapper partMapper;
-
+    private final EntityManager em;
     private final NotificationService notificationService;
 
     public Part create(Part Part) {
         return partRepository.save(Part);
     }
 
+    @Transactional
     public Part update(Long id, PartPatchDTO part) {
         if (partRepository.existsById(id)) {
             Part savedPart = partRepository.findById(id).get();
-            return partRepository.save(partMapper.updatePart(savedPart, part));
+            Part patchedPart = partRepository.saveAndFlush(partMapper.updatePart(savedPart, part));
+            em.refresh(patchedPart);
+            return patchedPart;
+
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public Part reduceQuantity(Part part, int quantity) {
+        if (part.getQuantity() >= quantity) {
+            part.setQuantity(part.getQuantity() - quantity);
+            if (part.getQuantity() < part.getMinQuantity()) {
+                part.getAssignedTo().forEach(user ->
+                        notificationService.create(new Notification(part.getName() + " is getting Low", user, NotificationType.PART, part.getId()))
+                );
+            }
+            return partRepository.save(part);
+        } else throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
     }
 
     public Collection<Part> getAll() {
@@ -74,7 +92,7 @@ public class PartService {
     public boolean canPatch(OwnUser user, PartPatchDTO partReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<Image> optionalImage = partReq.getImage() == null ? Optional.empty() : imageService.findById(partReq.getImage().getId());
+        Optional<File> optionalImage = partReq.getImage() == null ? Optional.empty() : fileService.findById(partReq.getImage().getId());
         Optional<Location> optionalLocation = partReq.getLocation() == null ? Optional.empty() : locationService.findById(partReq.getLocation().getId());
 
         boolean third = partReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));

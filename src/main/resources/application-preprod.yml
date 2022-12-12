@@ -10,4 +10,7 @@ spring:
   sql:
     init:
       data-locations: classpath:data-preprod.sql
-
+api:
+  host: ${API_HOST}
+frontend:
+  url: ${FRONT_URL}

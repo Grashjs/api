@@ -6,8 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface MeterCategoryRepository extends JpaRepository<MeterCategory, Long> {
     @Query("SELECT m from MeterCategory m where m.companySettings.company.id = :x ")
     Collection<MeterCategory> findByCompany_Id(@Param("x") Long id);
+
+    Optional<MeterCategory> findByName(String name);
+
 }

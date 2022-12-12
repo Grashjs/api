@@ -32,7 +32,7 @@ public class PartPatchDTO {
 
     private Location location;
 
-    private Image image;
+    private File image;
 
     private Collection<OwnUser> assignedTo;
 

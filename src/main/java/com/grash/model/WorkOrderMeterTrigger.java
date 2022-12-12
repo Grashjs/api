@@ -1,34 +1,31 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.WorkOrderMeterTriggerCondition;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class WorkOrderMeterTrigger {
+public class WorkOrderMeterTrigger extends WorkOrderBase {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private boolean isOneTime;
+    private boolean recurrent;
 
     @NotNull
-    private Date date;
-
-    @OneToOne
-    @NotNull
-    private WorkOrder workOrder;
+    private String name;
 
     @NotNull
-    private WorkOrderMeterTriggerCondition workOrderMeterTriggerCondition;
+    private WorkOrderMeterTriggerCondition triggerCondition;
 
+    @NotNull
     private int value;
 
     @NotNull

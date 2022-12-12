@@ -75,4 +75,8 @@ public class ReadingService {
 
         return first;
     }
+
+    public Collection<Reading> findByMeter(Long id) {
+        return readingRepository.findByMeter_Id(id);
+    }
 }

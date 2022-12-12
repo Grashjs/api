@@ -5,7 +5,12 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ImagePatchDTO {
+public class WorkOrderHistoryShowDTO extends AuditShowDTO {
+
+    private Long id;
+
     private String name;
-    private String url;
+
+    private UserMiniDTO user;
+
 }

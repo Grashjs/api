@@ -1,6 +1,6 @@
 package com.grash.dto;
 
-import com.grash.model.Image;
+import com.grash.model.File;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +10,7 @@ public class FloorPlanPatchDTO {
 
     private String name;
 
-    private Image image;
+    private File image;
 
     private double area;
 }

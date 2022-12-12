@@ -7,7 +7,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.MultiPartsMapper;
 import com.grash.model.MultiParts;
 import com.grash.model.OwnUser;
-import com.grash.model.enums.BasicPermission;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.service.MultiPartsService;
 import com.grash.service.UserService;
@@ -46,7 +46,12 @@ public class MultiPartsController {
     public Collection<MultiPartsShowDTO> getAll(HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return multiPartsService.findByCompany(user.getCompany().getId()).stream().map(multiPartsMapper::toShowDto).collect(Collectors.toList());
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
+                return multiPartsService.findByCompany(user.getCompany().getId()).stream().filter(multiPart -> {
+                    boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS);
+                    return canViewOthers || multiPart.getCreatedBy().equals(user.getId());
+                }).map(multiPartsMapper::toShowDto).collect(Collectors.toList());
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return multiPartsService.getAll().stream().map(multiPartsMapper::toShowDto).collect(Collectors.toList());
     }
 
@@ -61,7 +66,8 @@ public class MultiPartsController {
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
-            if (multiPartsService.hasAccess(user, savedMultiParts)) {
+            if (multiPartsService.hasAccess(user, savedMultiParts) && user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) &&
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedMultiParts.getCreatedBy().equals(user.getId()))) {
                 return multiPartsMapper.toShowDto(savedMultiParts);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -74,7 +80,7 @@ public class MultiPartsController {
             @ApiResponse(code = 403, message = "Access denied")})
     public MultiPartsShowDTO create(@ApiParam("MultiParts") @Valid @RequestBody MultiParts multiPartsReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (multiPartsService.canCreate(user, multiPartsReq)) {
+        if (multiPartsService.canCreate(user, multiPartsReq) && user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
             return multiPartsMapper.toShowDto(multiPartsService.create(multiPartsReq));
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -92,7 +98,9 @@ public class MultiPartsController {
 
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
-            if (multiPartsService.hasAccess(user, savedMultiParts) && multiPartsService.canPatch(user, multiParts)) {
+            if (multiPartsService.hasAccess(user, savedMultiParts) && multiPartsService.canPatch(user, multiParts)
+                    &&
+                    user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedMultiParts.getCreatedBy().equals(user.getId())) {
                 return multiPartsMapper.toShowDto(multiPartsService.update(id, multiParts));
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("MultiParts not found", HttpStatus.NOT_FOUND);
@@ -104,16 +112,16 @@ public class MultiPartsController {
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "MultiParts not found")})
-    public ResponseEntity delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
 
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
             if (multiPartsService.hasAccess(user, savedMultiParts)
-                    && user.getRole().getPermissions().contains(BasicPermission.DELETE_PARTS_AND_MULTI_PARTS)) {
+                    && (savedMultiParts.getId().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS))) {
                 multiPartsService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("MultiParts not found", HttpStatus.NOT_FOUND);

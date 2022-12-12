@@ -15,11 +15,15 @@ public class UserResponseDTO {
     @ApiModelProperty(position = 3)
     private Role role;
 
+    private String jobTitle;
+
     private String firstName;
 
     private String lastName;
 
     private String phone;
+
+    private boolean ownsCompany;
 
     private Long companyId;
 

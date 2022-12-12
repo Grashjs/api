@@ -3,8 +3,8 @@ package com.grash.service;
 import com.grash.dto.FloorPlanPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.FloorPlanMapper;
+import com.grash.model.File;
 import com.grash.model.FloorPlan;
-import com.grash.model.Image;
 import com.grash.model.Location;
 import com.grash.model.OwnUser;
 import com.grash.model.enums.RoleType;
@@ -20,7 +20,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FloorPlanService {
     private final FloorPlanRepository floorPlanRepository;
-    private final ImageService imageService;
+    private final FileService fileService;
     private final LocationService locationService;
     private final FloorPlanMapper floorPlanMapper;
 
@@ -66,11 +66,15 @@ public class FloorPlanService {
 
     public boolean canPatch(OwnUser user, FloorPlanPatchDTO floorPlanReq) {
         Long companyId = user.getCompany().getId();
-        Optional<Image> optionalImage = floorPlanReq.getImage() == null ? Optional.empty() : imageService.findById(floorPlanReq.getImage().getId());
+        Optional<File> optionalImage = floorPlanReq.getImage() == null ? Optional.empty() : fileService.findById(floorPlanReq.getImage().getId());
 
         //optional fields
         boolean third = floorPlanReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
 
         return third;
+    }
+
+    public Collection<FloorPlan> findByLocation(Long id) {
+        return floorPlanRepository.findByLocation_Id(id);
     }
 }

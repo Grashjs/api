@@ -12,7 +12,9 @@ import com.grash.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -23,15 +25,22 @@ public class TaskService {
     private final WorkOrderService workOrderService;
     private final CompanyService companyService;
     private final TaskMapper taskMapper;
+    private final EntityManager em;
 
+    @Transactional
     public Task create(Task Task) {
-        return taskRepository.save(Task);
+        Task savedTask = taskRepository.saveAndFlush(Task);
+        em.refresh(savedTask);
+        return savedTask;
     }
 
+    @Transactional
     public Task update(Long id, TaskPatchDTO task) {
         if (taskRepository.existsById(id)) {
             Task savedTask = taskRepository.findById(id).get();
-            return taskRepository.save(taskMapper.updateTask(savedTask, task));
+            Task updatedTask = taskRepository.save(taskMapper.updateTask(savedTask, task));
+            em.refresh(updatedTask);
+            return updatedTask;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -68,5 +77,9 @@ public class TaskService {
 
     public boolean canPatch(OwnUser user, TaskPatchDTO taskReq) {
         return true;
+    }
+
+    public Collection<Task> findByWorkOrder(Long id) {
+        return taskRepository.findByWorkOrder_Id(id);
     }
 }

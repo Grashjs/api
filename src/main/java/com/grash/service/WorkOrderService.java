@@ -4,6 +4,7 @@ import com.grash.dto.WorkOrderPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
+import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderHistoryRepository;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -30,18 +33,22 @@ public class WorkOrderService {
     private final PurchaseOrderService purchaseOrderService;
     private final NotificationService notificationService;
     private final WorkOrderMapper workOrderMapper;
+    private final EntityManager em;
 
     public WorkOrder create(WorkOrder workOrder) {
         return workOrderRepository.save(workOrder);
     }
 
-    public WorkOrder update(Long id, WorkOrderPatchDTO workOrder) {
+    @Transactional
+    public WorkOrder update(Long id, WorkOrderPatchDTO workOrder, OwnUser user) {
         if (workOrderRepository.existsById(id)) {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
-            WorkOrder updatedWorkOrder = workOrderRepository.save(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
+            WorkOrder updatedWorkOrder = workOrderRepository.saveAndFlush(workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder));
+            em.refresh(updatedWorkOrder);
             WorkOrderHistory workOrderHistory = WorkOrderHistory.builder()
                     .name("Updating " + workOrder.getTitle())
                     .workOrder(updatedWorkOrder)
+                    .user(user)
                     .build();
             workOrderHistoryRepository.save(workOrderHistory);
             return updatedWorkOrder;
@@ -74,13 +81,11 @@ public class WorkOrderService {
         Long companyId = user.getCompany().getId();
 
         Optional<Company> optionalCompany = companyService.findById(workOrderReq.getCompany().getId());
-        Optional<Asset> optionalAsset = assetService.findById(workOrderReq.getAsset().getId());
 
         //@NotNull fields
         boolean first = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-        boolean third = optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
 
-        return first && third && canPatch(user, workOrderMapper.toDto(workOrderReq));
+        return first && canPatch(user, workOrderMapper.toDto(workOrderReq));
     }
 
     public boolean canPatch(OwnUser user, WorkOrderPatchDTO workOrderReq) {
@@ -130,5 +135,33 @@ public class WorkOrderService {
             newWorkOrder.getTeam().getUsers().forEach(user ->
                     notificationService.create(new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())));
         }
+    }
+
+    public Collection<WorkOrder> findByAsset(Long id) {
+        return workOrderRepository.findByAsset_Id(id);
+    }
+
+    public Collection<WorkOrder> findByLocation(Long id) {
+        return workOrderRepository.findByLocation_Id(id);
+    }
+
+    public void save(WorkOrder workOrder) {
+        workOrderRepository.save(workOrder);
+    }
+
+    public WorkOrder getWorkOrderFromWorkOrderBase(WorkOrderBase workOrderBase) {
+        WorkOrder workOrder = new WorkOrder();
+        workOrder.setCompany(workOrderBase.getCompany());
+        workOrder.setTitle(workOrderBase.getTitle());
+        workOrder.setDescription(workOrderBase.getDescription());
+        workOrder.setPriority(workOrderBase.getPriority());
+        workOrder.setImage(workOrder.getImage());
+        //TODO
+        //workOrder.setFiles(workOrderBase.getFiles());
+        workOrder.setAsset(workOrderBase.getAsset());
+        workOrder.setLocation(workOrderBase.getLocation());
+        workOrder.setPrimaryUser(workOrderBase.getPrimaryUser());
+        workOrder.setTeam(workOrderBase.getTeam());
+        return workOrder;
     }
 }

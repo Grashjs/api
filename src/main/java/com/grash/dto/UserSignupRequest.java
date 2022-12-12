@@ -30,4 +30,8 @@ public class UserSignupRequest {
     @NotNull
     private String phone;
 
+    private String companyName;
+
+    private int employeesCount;
+
 }

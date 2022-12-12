@@ -17,20 +17,10 @@ spring:
   #      max-active: 50
   #      max-idle: 20
   #      min-idle: 15
-  security:
-    oauth2:
-      client:
-        registration:
-          wso2:
-            client-name: WSO2 Identity Server
-            client-id: C4OdpgNNOJbnFPyXOry6sNDEGtca
-            client-secret: PEobHr7BYGc8hg5xiE6bXMTH99Aa
-            authorization-grant-type: authorization_code
-            scope: openid
-        provider:
-          wso2:
-            issuer-uri: https://20.123.198.171:9443//oauth2/token
-
+  servlet:
+    multipart:
+      max-request-size: 7MB
+      max-file-size: 7MB
   profiles:
     active: dev
   mvc:
@@ -57,9 +47,14 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: grashdev@gmail.com
-    password:
+    username: ${SMTP_USER}
+    password: ${SMTP_PWD}
     protocol: smtp
+    tls: true
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
+      ssl.trust: smtp.gmail.com
 
 server:
   port: 8080 # This is the default port anyway, but you can change it here

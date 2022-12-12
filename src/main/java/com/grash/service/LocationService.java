@@ -10,7 +10,9 @@ import com.grash.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -25,15 +27,19 @@ public class LocationService {
     private final CompanyService companyService;
     private final LocationMapper locationMapper;
     private final NotificationService notificationService;
+    private final EntityManager em;
 
     public Location create(Location Location) {
         return locationRepository.save(Location);
     }
 
+    @Transactional
     public Location update(Long id, LocationPatchDTO location) {
         if (locationRepository.existsById(id)) {
             Location savedLocation = locationRepository.findById(id).get();
-            return locationRepository.save(locationMapper.updateLocation(savedLocation, location));
+            Location patchedLocation = locationRepository.saveAndFlush(locationMapper.updateLocation(savedLocation, location));
+            em.refresh(patchedLocation);
+            return patchedLocation;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -107,5 +113,13 @@ public class LocationService {
             newTeams.forEach(team -> team.getUsers().forEach(user ->
                     notificationService.create(new Notification(message, user, NotificationType.LOCATION, newLocation.getId()))));
         }
+    }
+
+    public Collection<Location> findLocationChildren(Long id) {
+        return locationRepository.findByParentLocation_Id(id);
+    }
+
+    public void save(Location location) {
+        locationRepository.save(location);
     }
 }

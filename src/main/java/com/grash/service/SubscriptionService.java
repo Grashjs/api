@@ -3,7 +3,6 @@ package com.grash.service;
 import com.grash.dto.SubscriptionPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.SubscriptionMapper;
-import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.Subscription;
 import com.grash.model.enums.RoleType;
@@ -44,24 +43,17 @@ public class SubscriptionService {
     public Optional<Subscription> findById(Long id) {
         return subscriptionRepository.findById(id);
     }
-
-    public Collection<Subscription> findByCompany(Long id) {
-        return subscriptionRepository.findByCompany_Id(id);
-    }
+    
 
     public boolean hasAccess(OwnUser user, Subscription subscription) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(subscription.getCompany().getId());
+        } else return true;
     }
 
     public boolean canCreate(OwnUser user, Subscription subscriptionReq) {
         Long companyId = user.getCompany().getId();
-        Optional<Company> optionalCompany = companyService.findById(subscriptionReq.getCompany().getId());
-
-        boolean second = optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-
-        return second && canPatch(user, subscriptionMapper.toDto(subscriptionReq));
+        return true;
     }
 
     public boolean canPatch(OwnUser user, SubscriptionPatchDTO subscriptionReq) {

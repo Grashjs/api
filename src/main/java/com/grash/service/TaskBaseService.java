@@ -1,17 +1,21 @@
 package com.grash.service;
 
+import com.grash.dto.TaskBaseDTO;
 import com.grash.dto.TaskBasePatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TaskBaseMapper;
 import com.grash.model.Company;
 import com.grash.model.OwnUser;
 import com.grash.model.TaskBase;
+import com.grash.model.TaskOption;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.TaskBaseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -21,9 +25,33 @@ public class TaskBaseService {
     private final TaskBaseRepository taskBaseRepository;
     private final CompanyService companyService;
     private final TaskBaseMapper taskBaseMapper;
+    private final TaskOptionService taskOptionService;
+    private final EntityManager em;
 
     public TaskBase create(TaskBase TaskBase) {
         return taskBaseRepository.save(TaskBase);
+    }
+
+    @Transactional
+    public TaskBase createFromTaskBaseDTO(TaskBaseDTO taskBaseDTO, Company company) {
+        TaskBase taskBase = TaskBase.builder()
+                .label(taskBaseDTO.getLabel())
+                .taskType(taskBaseDTO.getTaskType())
+                .user(taskBaseDTO.getUser())
+                .asset(taskBaseDTO.getAsset())
+                .meter(taskBaseDTO.getMeter())
+                .build();
+        taskBase.setCompany(company);
+        TaskBase savedTaskBase = create(taskBase);
+
+        if (taskBaseDTO.getOptions() != null) {
+            taskBaseDTO.getOptions().forEach(option -> {
+                TaskOption taskOption = new TaskOption(option, company, savedTaskBase);
+                taskOptionService.create(taskOption);
+            });
+        }
+        em.refresh(savedTaskBase);
+        return savedTaskBase;
     }
 
     public TaskBase update(Long id, TaskBasePatchDTO taskBase) {

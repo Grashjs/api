@@ -27,6 +27,8 @@ public class Location extends CompanyAudit {
 
     private Double latitude;
 
+    private boolean hasChildren;
+
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Location_User_Associations",

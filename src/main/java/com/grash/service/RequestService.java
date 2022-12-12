@@ -4,7 +4,6 @@ import com.grash.dto.RequestPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
-import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ import java.util.Optional;
 public class RequestService {
     private final RequestRepository requestRepository;
     private final CompanyService companyService;
-    private final ImageService imageService;
+    private final FileService fileService;
     private final LocationService locationService;
     private final UserService userService;
     private final TeamService teamService;
@@ -76,58 +75,33 @@ public class RequestService {
         Long companyId = user.getCompany().getId();
 
         Optional<Location> optionalLocation = requestReq.getLocation() == null ? Optional.empty() : locationService.findById(requestReq.getLocation().getId());
-        Optional<Image> optionalImage = requestReq.getImage() == null ? Optional.empty() : imageService.findById(requestReq.getImage().getId());
+        Optional<File> optionalImage = requestReq.getImage() == null ? Optional.empty() : fileService.findById(requestReq.getImage().getId());
         Optional<Asset> optionalAsset = requestReq.getAsset() == null ? Optional.empty() : assetService.findById(requestReq.getAsset().getId());
-        Optional<OwnUser> optionalAssignedTo = requestReq.getAssignedTo() == null ? Optional.empty() : userService.findById(requestReq.getAssignedTo().getId());
+        Optional<OwnUser> optionalPrimaryUser = requestReq.getPrimaryUser() == null ? Optional.empty() : userService.findById(requestReq.getPrimaryUser().getId());
         Optional<Team> optionalTeam = requestReq.getTeam() == null ? Optional.empty() : teamService.findById(requestReq.getTeam().getId());
 
         //optional fields
         boolean first = requestReq.getAsset() == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
         boolean second = requestReq.getLocation() == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
         boolean third = requestReq.getImage() == null || (optionalImage.isPresent() && optionalImage.get().getCompany().getId().equals(companyId));
-        boolean fourth = requestReq.getAssignedTo() == null || (optionalAssignedTo.isPresent() && optionalAssignedTo.get().getCompany().getId().equals(companyId));
+        boolean fourth = requestReq.getPrimaryUser() == null || (optionalPrimaryUser.isPresent() && optionalPrimaryUser.get().getCompany().getId().equals(companyId));
         boolean fifth = requestReq.getTeam() == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
 
         return first && second && third && fourth && fifth;
     }
 
-    public void createWorkOrderFromRequest(Request request) {
-        WorkOrder workOrder = new WorkOrder();
-        workOrder.setCompany(request.getCompany());
+    public WorkOrder createWorkOrderFromRequest(Request request) {
+        WorkOrder workOrder = workOrderService.getWorkOrderFromWorkOrderBase(request);
         workOrder.setParentRequest(request);
-        workOrder.setTitle(request.getTitle());
-        workOrder.setDescription(request.getDescription());
-        workOrder.setPriority(request.getPriority());
-        workOrder.setFiles(request.getFiles());
-        workOrder.setAsset(request.getAsset());
-        workOrder.setLocation(request.getLocation());
-        //workOrder.setAssignedTo(request.getAssignedTo());
-        workOrder.setTeam(request.getTeam());
         WorkOrder savedWorkOrder = workOrderService.create(workOrder);
         workOrderService.notify(savedWorkOrder);
-
+        request.setWorkOrder(savedWorkOrder);
+        requestRepository.save(request);
+        
+        return savedWorkOrder;
     }
 
-    public void notify(Request request) {
-
-        String message = "Request " + request.getTitle() + " has been assigned to you";
-        if (request.getAssignedTo() != null) {
-            notificationService.create(new Notification(message, request.getAssignedTo(), NotificationType.REQUEST, request.getId()));
-        }
-        if (request.getTeam() != null) {
-            request.getTeam().getUsers().forEach(user ->
-                    notificationService.create(new Notification(message, user, NotificationType.REQUEST, request.getId())));
-        }
-    }
-
-    public void patchNotify(Request oldRequest, Request newRequest) {
-        String message = "Request " + newRequest.getTitle() + " has been assigned to you";
-        if (newRequest.getAssignedTo() != null && !newRequest.getAssignedTo().getId().equals(oldRequest.getAssignedTo().getId())) {
-            notificationService.create(new Notification(message, newRequest.getAssignedTo(), NotificationType.REQUEST, newRequest.getId()));
-        }
-        if (newRequest.getTeam() != null) {
-            newRequest.getTeam().getUsers().forEach(user ->
-                    notificationService.create(new Notification(message, user, NotificationType.REQUEST, newRequest.getId())));
-        }
+    public Request save(Request request) {
+        return requestRepository.save(request);
     }
 }

@@ -1,14 +1,13 @@
 package com.grash.dto;
 
-import com.grash.model.OwnUser;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
 public class LaborPatchDTO {
-    private OwnUser worker;
 
-    private int duration;
-
+    private Date endedAt;
 }

@@ -23,6 +23,10 @@ public class WorkOrderHistory extends Audit {
     @NotNull
     private String name;
 
+    @NotNull
+    @ManyToOne
+    private OwnUser user;
+
     @ManyToOne
     @NotNull
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

@@ -5,6 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.model.CompanySettings;
 import com.grash.model.GeneralPreferences;
 import com.grash.model.OwnUser;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.service.GeneralPreferencesService;
 import com.grash.service.UserService;
 import io.swagger.annotations.Api;
@@ -76,7 +77,8 @@ public class GeneralPreferencesController {
 
         if (optionalGeneralPreferences.isPresent()) {
             GeneralPreferences savedGeneralPreferences = optionalGeneralPreferences.get();
-            if (savedGeneralPreferences.getCompanySettings().getId().equals(user.getCompany().getCompanySettings().getId())) {
+            if (savedGeneralPreferences.getCompanySettings().getId().equals(user.getCompany().getCompanySettings().getId())
+                    && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
                 return generalPreferencesService.update(id, generalPreferences);
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);

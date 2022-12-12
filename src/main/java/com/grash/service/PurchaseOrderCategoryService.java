@@ -24,6 +24,10 @@ public class PurchaseOrderCategoryService {
     private final PurchaseOrderCategoryMapper purchaseOrderCategoryMapper;
 
     public PurchaseOrderCategory create(PurchaseOrderCategory purchaseOrderCategory) {
+        Optional<PurchaseOrderCategory> categoryWithSameName = purchaseOrderCategoryRepository.findByName(purchaseOrderCategory.getName());
+        if(categoryWithSameName.isPresent()) {
+            throw new CustomException("PurchaseOrderCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
+        }
         return purchaseOrderCategoryRepository.save(purchaseOrderCategory);
     }
 

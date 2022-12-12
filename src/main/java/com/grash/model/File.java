@@ -1,21 +1,34 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.grash.model.abstracts.FileAbstract;
+import com.grash.model.abstracts.CompanyAudit;
+import com.grash.model.enums.FileType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class File extends FileAbstract {
+public class File extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @NotNull
+    private String name;
+
+    @NotNull
+    private String url;
+
+    private FileType type = FileType.OTHER;
+    
+    @ManyToOne
+    private Task task;
 
     @ManyToMany
     @JsonIgnore
@@ -61,5 +74,10 @@ public class File extends FileAbstract {
             })
     private List<WorkOrder> workOrders = new ArrayList<>();
 
-
+    public File(String name, String url, Company company, FileType fileType) {
+        this.name = name;
+        this.url = url;
+        this.type = fileType;
+        this.setCompany(company);
+    }
 }

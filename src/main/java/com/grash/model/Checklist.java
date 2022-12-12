@@ -1,6 +1,9 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.model.abstracts.DateAudit;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,7 +15,9 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
-public class Checklist {
+@Builder
+@AllArgsConstructor
+public class Checklist extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -24,6 +29,8 @@ public class Checklist {
     private String name;
 
     private String description;
+
+    private String category;
 
     @ManyToOne
     @NotNull

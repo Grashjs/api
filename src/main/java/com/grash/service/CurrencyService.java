@@ -43,6 +43,10 @@ public class CurrencyService {
         return currencyRepository.findById(id);
     }
 
+    public Optional<Currency> findByCode(String code) {
+        return currencyRepository.findByCode(code);
+    }
+
     public boolean hasAccess(OwnUser user) {
         return user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN) ||
                 user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT);

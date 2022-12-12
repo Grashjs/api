@@ -1,6 +1,5 @@
 package com.grash.dto;
 
-import com.grash.model.TaskBase;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,5 +12,8 @@ public class ChecklistPatchDTO {
 
     private String description;
 
-    private Collection<TaskBase> taskBases;
+    private Collection<TaskBaseDTO> taskBases;
+
+    private String category;
+
 }

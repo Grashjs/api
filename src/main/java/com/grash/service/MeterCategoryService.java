@@ -23,8 +23,12 @@ public class MeterCategoryService {
     private final CompanySettingsService companySettingsService;
     private final MeterCategoryMapper meterCategoryMapper;
 
-    public MeterCategory create(MeterCategory MeterCategory) {
-        return meterCategoryRepository.save(MeterCategory);
+    public MeterCategory create(MeterCategory meterCategory) {
+        Optional<MeterCategory> categoryWithSameName = meterCategoryRepository.findByName(meterCategory.getName());
+        if(categoryWithSameName.isPresent()) {
+            throw new CustomException("MeterCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
+        }
+        return meterCategoryRepository.save(meterCategory);
     }
 
     public MeterCategory update(Long id, CategoryPatchDTO meterCategory) {

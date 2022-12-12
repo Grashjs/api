@@ -5,13 +5,17 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.AdditionalTimeMapper;
 import com.grash.model.*;
 import com.grash.model.enums.RoleType;
+import com.grash.model.enums.TimeStatus;
 import com.grash.repository.AdditionalTimeRepository;
+import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,10 @@ public class AdditionalTimeService {
             AdditionalTime savedAdditionalTime = additionalTimeRepository.findById(id).get();
             return additionalTimeRepository.save(additionalTimeMapper.updateAdditionalTime(savedAdditionalTime, additionalTime));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public AdditionalTime save(AdditionalTime additionalTime) {
+        return additionalTimeRepository.save(additionalTime);
     }
 
     public Collection<AdditionalTime> getAll() {
@@ -77,5 +85,15 @@ public class AdditionalTimeService {
         boolean sixth = additionalTimeReq.getAssignedTo() == null || (optionalUser.isPresent() && optionalUser.get().getCompany().getId().equals(companyId));
 
         return third && sixth;
+    }
+
+    public Collection<AdditionalTime> findByWorkOrder(Long id) {
+        return additionalTimeRepository.findByWorkOrder_Id(id);
+    }
+
+    public AdditionalTime stop(AdditionalTime additionalTime) {
+        additionalTime.setStatus(TimeStatus.STOPPED);
+        additionalTime.setDuration(additionalTime.getDuration() + Helper.getDateDiff(additionalTime.getStartedAt(), new Date(), TimeUnit.SECONDS));
+        return save(additionalTime);
     }
 }

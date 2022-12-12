@@ -23,6 +23,8 @@ public class LocationShowDTO extends AuditShowDTO {
 
     private Double latitude;
 
+    private boolean hasChildren;
+
     private List<TeamMiniDTO> teams = new ArrayList<>();
 
     private Location parentLocation;

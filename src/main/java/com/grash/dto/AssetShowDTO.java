@@ -1,6 +1,8 @@
 package com.grash.dto;
 
-import com.grash.model.*;
+import com.grash.model.AssetCategory;
+import com.grash.model.Deprecation;
+import com.grash.model.File;
 import com.grash.model.enums.AssetStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,11 +22,11 @@ public class AssetShowDTO extends AuditShowDTO {
 
     private String description;
 
-    private Image image;
+    private File image;
 
-    private Location location;
+    private LocationMiniDTO location;
 
-    private Asset parentAsset;
+    private AssetMiniDTO parentAsset;
 
     private String area;
 
@@ -34,7 +36,7 @@ public class AssetShowDTO extends AuditShowDTO {
 
     private String name;
 
-    private OwnUser primaryUser;
+    private UserMiniDTO primaryUser;
 
     private List<UserMiniDTO> assignedTo = new ArrayList<>();
 
@@ -58,9 +60,9 @@ public class AssetShowDTO extends AuditShowDTO {
 
     private AssetStatus status = AssetStatus.OPERATIONAL;
 
-    private int uptime;
+    private long uptime;
 
-    private int downtime;
+    private long downtime;
 
     private List<FileMiniDTO> files = new ArrayList<>();
 

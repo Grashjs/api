@@ -14,5 +14,5 @@ public interface VendorMapper {
     @Mappings({})
     VendorPatchDTO toDto(Vendor model);
 
-    VendorMiniDTO toShowDto(Vendor model);
+    VendorMiniDTO toMiniDto(Vendor model);
 }

@@ -1,7 +1,6 @@
 package com.grash.dto;
 
 import com.grash.model.*;
-import com.grash.model.enums.AssetStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +12,7 @@ import java.util.Date;
 public class AssetPatchDTO {
     private boolean archived;
 
-    private Image image;
+    private File image;
 
     private Location location;
 
@@ -36,12 +35,6 @@ public class AssetPatchDTO {
     private String additionalInfos;
 
     private String serialNumber;
-
-    private AssetStatus status = AssetStatus.OPERATIONAL;
-
-    private int uptime;
-
-    private int downtime;
 
     private Collection<OwnUser> assignedTo;
 

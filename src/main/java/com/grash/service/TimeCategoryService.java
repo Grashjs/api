@@ -22,8 +22,12 @@ public class TimeCategoryService {
     private final CompanySettingsService companySettingsService;
     private final TimeCategoryMapper timeCategoryMapper;
 
-    public TimeCategory create(TimeCategory TimeCategory) {
-        return timeCategoryRepository.save(TimeCategory);
+    public TimeCategory create(TimeCategory timeCategory) {
+        Optional<TimeCategory> categoryWithSameName = timeCategoryRepository.findByName(timeCategory.getName());
+        if(categoryWithSameName.isPresent()) {
+            throw new CustomException("TimeCategory with same name already exists", HttpStatus.NOT_ACCEPTABLE);
+        }
+        return timeCategoryRepository.save(timeCategory);
     }
 
     public TimeCategory update(Long id, CategoryPatchDTO timeCategory) {

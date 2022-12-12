@@ -1,6 +1,6 @@
 package com.grash.dto;
 
-import com.grash.model.Image;
+import com.grash.model.File;
 import com.grash.model.Location;
 import com.grash.model.MeterCategory;
 import com.grash.model.OwnUser;
@@ -20,7 +20,7 @@ public class MeterPatchDTO {
 
     private MeterCategory meterCategory;
 
-    private Image image;
+    private File image;
 
     private Location location;
 

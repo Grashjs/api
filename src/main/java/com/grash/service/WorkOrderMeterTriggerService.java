@@ -5,7 +5,6 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.WorkOrderMeterTriggerMapper;
 import com.grash.model.Meter;
 import com.grash.model.OwnUser;
-import com.grash.model.WorkOrder;
 import com.grash.model.WorkOrderMeterTrigger;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.WorkOrderMeterTriggerRepository;
@@ -50,23 +49,25 @@ public class WorkOrderMeterTriggerService {
     public boolean hasAccess(OwnUser user, WorkOrderMeterTrigger workOrderMeterTrigger) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(workOrderMeterTrigger.getWorkOrder().getCompany().getId());
+        } else return user.getCompany().getId().equals(workOrderMeterTrigger.getCompany().getId());
     }
 
     public boolean canCreate(OwnUser user, WorkOrderMeterTrigger workOrderMeterTriggerReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(workOrderMeterTriggerReq.getWorkOrder().getId());
         Optional<Meter> optionalMeter = meterService.findById(workOrderMeterTriggerReq.getMeter().getId());
 
         //@NotNull fields
-        boolean first = optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
         boolean second = optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
 
-        return first && second && canPatch(user, workOrderMeterTriggerMapper.toDto(workOrderMeterTriggerReq));
+        return second && canPatch(user, workOrderMeterTriggerMapper.toDto(workOrderMeterTriggerReq));
     }
 
     public boolean canPatch(OwnUser user, WorkOrderMeterTriggerPatchDTO workOrderMeterTriggerReq) {
         return true;
+    }
+
+    public Collection<WorkOrderMeterTrigger> findByMeter(Long id) {
+        return workOrderMeterTriggerRepository.findByMeter_Id(id);
     }
 }

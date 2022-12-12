@@ -5,8 +5,11 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.AdditionalCost;
 import com.grash.model.OwnUser;
+import com.grash.model.WorkOrder;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.service.AdditionalCostService;
 import com.grash.service.UserService;
+import com.grash.service.WorkOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.Optional;
 
 @RestController
@@ -29,6 +33,8 @@ public class AdditionalCostController {
 
     private final AdditionalCostService additionalCostService;
     private final UserService userService;
+    private final WorkOrderService workOrderService;
+
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
@@ -47,6 +53,20 @@ public class AdditionalCostController {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/work-order/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "AdditionalCost not found")})
+    public Collection<AdditionalCost> getByWorkOrder(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
+        if (optionalWorkOrder.isPresent() && workOrderService.hasAccess(user, optionalWorkOrder.get())) {
+            return additionalCostService.findByWorkOrder(id);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
@@ -54,7 +74,8 @@ public class AdditionalCostController {
             @ApiResponse(code = 403, message = "Access denied")})
     public AdditionalCost create(@ApiParam("AdditionalCost") @Valid @RequestBody AdditionalCost additionalCostReq, HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
-        if (additionalCostService.canCreate(user, additionalCostReq)) {
+        if (additionalCostService.canCreate(user, additionalCostReq)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ADDITIONAL_COST)) {
             return additionalCostService.create(additionalCostReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

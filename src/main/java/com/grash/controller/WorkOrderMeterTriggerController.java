@@ -2,9 +2,13 @@ package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.WorkOrderMeterTriggerPatchDTO;
+import com.grash.dto.WorkOrderMeterTriggerShowDTO;
 import com.grash.exception.CustomException;
+import com.grash.mapper.WorkOrderMeterTriggerMapper;
+import com.grash.model.Meter;
 import com.grash.model.OwnUser;
 import com.grash.model.WorkOrderMeterTrigger;
+import com.grash.service.MeterService;
 import com.grash.service.UserService;
 import com.grash.service.WorkOrderMeterTriggerService;
 import io.swagger.annotations.Api;
@@ -19,7 +23,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/work-order-meter-triggers")
@@ -28,7 +34,9 @@ import java.util.Optional;
 public class WorkOrderMeterTriggerController {
 
     private final WorkOrderMeterTriggerService workOrderMeterTriggerService;
+    private final WorkOrderMeterTriggerMapper workOrderMeterTriggerMapper;
     private final UserService userService;
+    private final MeterService meterService;
 
 
     @GetMapping("/{id}")
@@ -60,21 +68,37 @@ public class WorkOrderMeterTriggerController {
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
+
+    @GetMapping("/meter/{id}")
+    @PreAuthorize("permitAll()")
+    @ApiResponses(value = {//
+            @ApiResponse(code = 500, message = "Something went wrong"),
+            @ApiResponse(code = 403, message = "Access denied"),
+            @ApiResponse(code = 404, message = "WorkOrderMeterTrigger not found")})
+    public Collection<WorkOrderMeterTriggerShowDTO> getByMeter(@ApiParam("id") @PathVariable("id") Long id, HttpServletRequest req) {
+        OwnUser user = userService.whoami(req);
+        Optional<Meter> optionalMeter = meterService.findById(id);
+        if (optionalMeter.isPresent() && meterService.hasAccess(user, optionalMeter.get())) {
+            return workOrderMeterTriggerService.findByMeter(id).stream().map(workOrderMeterTriggerMapper::toShowDto).collect(Collectors.toList());
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @ApiResponses(value = {//
             @ApiResponse(code = 500, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 404, message = "WorkOrderMeterTrigger not found")})
-    public WorkOrderMeterTrigger patch(@ApiParam("WorkOrderMeterTrigger") @Valid @RequestBody WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger, @ApiParam("id") @PathVariable("id") Long id,
-                                       HttpServletRequest req) {
+    public WorkOrderMeterTriggerShowDTO patch(@ApiParam("WorkOrderMeterTrigger") @Valid @RequestBody WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger, @ApiParam("id") @PathVariable("id") Long id,
+                                              HttpServletRequest req) {
         OwnUser user = userService.whoami(req);
         Optional<WorkOrderMeterTrigger> optionalWorkOrderMeterTrigger = workOrderMeterTriggerService.findById(id);
 
         if (optionalWorkOrderMeterTrigger.isPresent()) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = optionalWorkOrderMeterTrigger.get();
             if (workOrderMeterTriggerService.hasAccess(user, savedWorkOrderMeterTrigger) && workOrderMeterTriggerService.canPatch(user, workOrderMeterTrigger)) {
-                return workOrderMeterTriggerService.update(id, workOrderMeterTrigger);
+                return workOrderMeterTriggerMapper.toShowDto(workOrderMeterTriggerService.update(id, workOrderMeterTrigger));
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("WorkOrderMeterTrigger not found", HttpStatus.NOT_FOUND);
     }

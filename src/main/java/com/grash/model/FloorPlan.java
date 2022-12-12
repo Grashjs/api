@@ -18,7 +18,7 @@ public class FloorPlan {
     private String name;
 
     @OneToOne
-    private Image image;
+    private File image;
 
     private double area;
 

@@ -41,10 +41,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/auth/signin").permitAll()//
                 .antMatchers("/auth/signin").permitAll()//
                 .antMatchers("/auth/signup").permitAll()//
+                .antMatchers("/auth/sendMail").permitAll()//
                 .antMatchers("/auth/resetpwd/**").permitAll()
                 .antMatchers("/mail/send").permitAll()
                 .antMatchers(HttpMethod.POST, "/newsLetters").permitAll()
-                .antMatchers("/stats").permitAll()
                 .antMatchers("/auth/activate-account**").permitAll()//
                 .antMatchers("/h2-console/**/**").permitAll()
                 // Disallow everything else..

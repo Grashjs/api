@@ -14,5 +14,5 @@ public interface CustomerMapper {
     @Mappings({})
     CustomerPatchDTO toDto(Customer model);
 
-    CustomerMiniDTO toShowDto(Customer model);
+    CustomerMiniDTO toMiniDto(Customer model);
 }
