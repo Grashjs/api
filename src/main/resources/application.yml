@@ -58,6 +58,11 @@ spring:
 
 server:
   port: 8080 # This is the default port anyway, but you can change it here
+  ssl:
+    key-store-password: password
+    key-store-type: JKS
+    key-store: classpath:keystore/keystore.jks
+    key-alias: api
 
 security:
   jwt:
