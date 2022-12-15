@@ -35,25 +35,31 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         // Entry points
         http.authorizeRequests()//
-                .antMatchers("/").permitAll()
-                .antMatchers("/login").permitAll()
-                .antMatchers("/checklists").permitAll()
-                .antMatchers("/auth/signin").permitAll()//
-                .antMatchers("/auth/signin").permitAll()//
-                .antMatchers("/auth/signup").permitAll()//
-                .antMatchers("/auth/sendMail").permitAll()//
-                .antMatchers("/auth/resetpwd/**").permitAll()
-                .antMatchers("/mail/send").permitAll()
-                .antMatchers(HttpMethod.POST, "/newsLetters").permitAll()
-                .antMatchers("/auth/activate-account**").permitAll()//
-                .antMatchers("/h2-console/**/**").permitAll()
-                // Disallow everything else..
-                .anyRequest().authenticated()
+                .antMatchers("/auth/login")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
                 .and()
-                .oauth2Login().loginPage("/login");
+                .oauth2Login().loginPage("/auth/login");
+//                .antMatchers("/").permitAll()
+//                .antMatchers("auth/login").permitAll()
+//                .antMatchers("/checklists").permitAll()
+//                .antMatchers("/auth/signin").permitAll()//
+//                .antMatchers("/auth/signin").permitAll()//
+//                .antMatchers("/auth/signup").permitAll()//
+//                .antMatchers("/auth/sendMail").permitAll()//
+//                .antMatchers("/auth/resetpwd/**").permitAll()
+//                .antMatchers("/mail/send").permitAll()
+//                .antMatchers(HttpMethod.POST, "/newsLetters").permitAll()
+//                .antMatchers("/auth/activate-account**").permitAll()//
+//                .antMatchers("/h2-console/**/**").permitAll()
+//                // Disallow everything else..
+//                .anyRequest().authenticated()
+//                .and()
+//                .oauth2Login().loginPage("/auth/login");
 
         // If a user try to access a resource without having enough permissions
-        http.exceptionHandling().accessDeniedPage("/login");
+        http.exceptionHandling().accessDeniedPage("/auth/login");
 
         // Apply JWT
         http.apply(new JwtTokenFilterConfigurer(jwtTokenProvider));

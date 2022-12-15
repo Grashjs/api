@@ -8,6 +8,7 @@ import com.grash.service.EmailService2;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.annotations.*;
+import org.springframework.ui.Model;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -42,7 +43,7 @@ public class AuthController {
 //        return "redirect:/oauth2/authorization/wso2";
 //    }
 
-    @PostMapping(
+    @GetMapping(
             path = "/login",
             produces = {
                     MediaType.APPLICATION_JSON_VALUE
@@ -51,11 +52,10 @@ public class AuthController {
     @ApiOperation(value = "${AuthController.signin}")
     @ApiResponses(value = {
             @ApiResponse(code = 400, message = "Something went wrong"),
-            @ApiResponse(code = 422, message = "Invalid credentials")
+//            @ApiResponse(code = 422, message = "Invalid credentials")
     })
-    public String login(
-            @ApiParam("AuthLoginRequest") @Valid @RequestBody UserLoginRequest userLoginRequest) {
-        return "redirect:/oauth2/authorization/wso2";
+    public String login(Model model) {
+        return "https://idp.grash-cmms.com:9443/oauth2/authorization/wso2";
     }
 
     @PostMapping(
