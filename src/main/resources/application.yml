@@ -12,6 +12,11 @@ spring:
         provider:
           wso2:
             issuer-uri: https://idp.grash-cmms.com:9443/oauth2/token
+            jwk-set-uri: https://idp.grash-cmms.com:9443/oauth2/jwks
+            authorization-uri: https://idp.grash-cmms.com:9443/oauth2/authorize
+            token-uri: https://idp.grash-cmms.com:9443/oauth2/token
+            user-info-uri: https://idp.grash-cmms.com:9443/oauth2/userinfo
+
   #    tomcat:
   #      max-wait: 20000
   #      max-active: 50
@@ -59,10 +64,12 @@ spring:
 server:
   port: 8080 # This is the default port anyway, but you can change it here
   ssl:
-    key-store-password: password
-    key-store-type: JKS
-    key-store: classpath:keystore/keystore.jks
+    enabled: true
     key-alias: api
+    key-store: file:keystore/apikeystore.jks
+    key-store-type: JKS
+    key-store-password: password
+    key-password: password
 
 security:
   jwt:
