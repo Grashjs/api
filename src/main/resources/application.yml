@@ -1,5 +1,12 @@
 provider:
   host: https://idp.grash-cmms.com:9443
+
+client:
+  client-id: A2UHKWNjFXnWrHGxupX22wgXBKka
+  client-secret: GOttUrhyghii0Xum4OlHMMIZme8a
+  post-logout-uri: http://localhost:8080/login
+  scope: openid
+  authorization-grant-type: authorization_code
 spring:
   security:
     oauth2:
@@ -7,19 +14,16 @@ spring:
         registration:
           wso2:
             client-name: WSO2 Identity Server
-            client-id: A2UHKWNjFXnWrHGxupX22wgXBKka
-            client-secret: GOttUrhyghii0Xum4OlHMMIZme8a
-            authorization-grant-type: authorization_code
-            scope: openid
+            client-id: ${client.client-id} #Change client-id
+            client-secret: ${client.client-secret} # Change client-secret
+            authorization-grant-type: ${client.authorization-grant-type}
+            scope: ${client.scope}
         provider:
           wso2:
-            issuer-uri: https://idp.grash-cmms.com:9443/oauth2/token
-            jwk-set-uri: https://idp.grash-cmms.com:9443/oauth2/jwks
-            authorization-uri: https://idp.grash-cmms.com:9443/oauth2/authorize
-            token-uri: https://idp.grash-cmms.com:9443/oauth2/token
-            user-info-uri: https://idp.grash-cmms.com:9443/oauth2/userinfo
-    thymeleaf:
-      cache: false
+            issuer-uri: ${provider.host}/oauth2/token
+
+  thymeleaf:
+    cache: false
 
   #    tomcat:
   #      max-wait: 20000
@@ -83,6 +87,8 @@ security:
 
 frontend:
   url: http://localhost:3000
+api:
+  url: http://localhost:8080
 mail:
   recipient: #recipient@gmail.com
 superAdmin:
