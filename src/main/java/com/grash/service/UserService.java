@@ -6,6 +6,7 @@ import com.grash.dto.UserSignupRequest;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.model.*;
+import com.grash.model.enums.AuthProvider;
 import com.grash.repository.UserRepository;
 import com.grash.repository.VerificationTokenRepository;
 import com.grash.security.JwtTokenProvider;
@@ -67,10 +68,16 @@ public class UserService {
         }
     }
 
-    public SuccessResponse signup(UserSignupRequest userReq) {
+    public OwnUser signup(UserSignupRequest userReq, AuthProvider authProvider, String providerId) {
         OwnUser user = userMapper.toModel(userReq);
+        user.setProvider(authProvider);
+        user.setProviderId(providerId);
         if (!userRepository.existsByEmail(user.getEmail())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            if (user.getPassword() == null) {
+                user.setPassword(passwordEncoder.encode(utils.generateStringId()));
+            } else {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
             user.setUsername(utils.generateStringId());
             if (user.getRole() == null) {
                 //create company with default roles
@@ -97,8 +104,7 @@ public class UserService {
             }
             if (API_HOST.equals("http://localhost:8080")) {
                 user.setEnabled(true);
-                userRepository.save(user);
-                return new SuccessResponse(true, jwtTokenProvider.createToken(user.getEmail(), Collections.singletonList(user.getRole().getRoleType())));
+                return userRepository.save(user);
             } else {
                 //send mail
                 String token = UUID.randomUUID().toString();
@@ -110,14 +116,12 @@ public class UserService {
                 try {
                     emailService2.sendMessageUsingThymeleafTemplate(user.getEmail(), "Confirmation Email", variables, "signup.html");
                 } catch (MessagingException exception) {
-                    return new SuccessResponse(false, "Couldn't send the email");
+                    throw new CustomException("Couldn't send the email", HttpStatus.INTERNAL_SERVER_ERROR);
 
                 }
                 VerificationToken newUserToken = new VerificationToken(token, user);
                 verificationTokenRepository.save(newUserToken);
-                userRepository.save(user);
-
-                return new SuccessResponse(true, "Successful registration. Check your mailbox to activate your account");
+                return userRepository.save(user);
             }
         } else {
             throw new CustomException("Email is already in use", HttpStatus.UNPROCESSABLE_ENTITY);

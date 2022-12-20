@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.Audit;
+import com.grash.model.enums.AuthProvider;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -63,6 +64,12 @@ public class OwnUser extends Audit {
 
     @ManyToOne
     private Location location;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider;
+
+    private String providerId;
 
     @ManyToMany
     @JsonIgnore

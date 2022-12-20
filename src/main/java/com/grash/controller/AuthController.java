@@ -4,6 +4,7 @@ import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
 import com.grash.model.OwnUser;
+import com.grash.model.enums.AuthProvider;
 import com.grash.service.EmailService2;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
@@ -64,8 +65,8 @@ public class AuthController {
             @ApiResponse(code = 400, message = "Something went wrong"), //
             @ApiResponse(code = 403, message = "Access denied"), //
             @ApiResponse(code = 422, message = "Username is already in use")})
-    public SuccessResponse signup(@ApiParam("Signup User") @Valid @RequestBody UserSignupRequest user) {
-        return userService.signup(user);
+    public OwnUser signup(@ApiParam("Signup User") @Valid @RequestBody UserSignupRequest user) {
+        return userService.signup(user, AuthProvider.local, null);
     }
 
     @PostMapping(
