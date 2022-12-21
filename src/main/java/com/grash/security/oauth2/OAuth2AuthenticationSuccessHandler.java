@@ -7,6 +7,7 @@ import com.grash.utils.CookieUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.grash.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
@@ -62,8 +64,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
-        //Map<String, Object> userDetails = ((DefaultOidcUser) authentication.getPrincipal()).getAttributes();
-        String token = tokenProvider.createToken(authentication.getName(), Collections.EMPTY_LIST);
+        Map<String, Object> userDetails = ((DefaultOidcUser) authentication.getPrincipal()).getAttributes();
+        String token = tokenProvider.createToken((String) userDetails.get("email"), Collections.EMPTY_LIST);
 
         return UriComponentsBuilder.fromUriString(targetUrl)
                 .queryParam("token", token)

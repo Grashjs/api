@@ -10,12 +10,12 @@ public class Wso2OAuth2UserInfo extends OAuth2UserInfo {
 
     @Override
     public String getId() {
-        return ((Integer) attributes.get("id")).toString();
+        return ((String) attributes.get("sub"));
     }
 
     @Override
     public String getName() {
-        return (String) attributes.get("name");
+        return (String) attributes.get("family_name");
     }
 
     @Override
