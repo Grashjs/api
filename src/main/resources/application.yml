@@ -2,8 +2,8 @@ provider:
   host: https://idp.grash-cmms.com:9443
 
 client:
-  client-id: A2UHKWNjFXnWrHGxupX22wgXBKka
-  client-secret: GOttUrhyghii0Xum4OlHMMIZme8a
+  client-id: 6SkR8P5Fd53bG5IfQiGvu9h9y9ka
+  client-secret: dnYUG0u8AWm2b6fraEk0xef64vMa
   post-logout-uri: http://localhost:8080/login
   scope: openid
   authorization-grant-type: authorization_code
