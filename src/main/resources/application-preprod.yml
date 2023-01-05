@@ -22,4 +22,4 @@ server:
     key-alias: isca
     key-store-password: mypassword    # Enter the password in the pfx-password.txt file.
     key-store-type: PKCS12
-    key-store: classpath:keystore/keystore.pfx    # Replace domain_name.pfx with the name of your certificate.
+    key-store: classpath:keystore.pfx    # Replace domain_name.pfx with the name of your certificate.
