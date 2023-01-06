@@ -19,9 +19,7 @@ frontend:
 server:
   port: 443    # Enable port 443, which is the default port for HTTPS services. You can change the port based on your business requirements.
   ssl:
-    path: /
-    key-store:
-      file: classpath/keystore/keystore.pfx    # Replace domain_name.pfx with the name of your certificate.
-      alias: isca
-      password: mypassword
-      type: PKCS12
+    key-store: file:keystore/keystore.pfx    # Replace domain_name.pfx with the name of your certificate.
+    key-alias: isca
+    key-store-password: mypassword    # Enter the password in the pfx-password.txt file.
+    key-store-type: PKCS12
