@@ -29,6 +29,9 @@ public class CompanySettings {
     @OneToOne(cascade = CascadeType.ALL)
     private WorkOrderRequestConfiguration WorkOrderRequestConfiguration = new WorkOrderRequestConfiguration(this);
 
+    @OneToOne(cascade = CascadeType.ALL)
+    private WorkOrderIdPreferences workOrderIdPreferences = new WorkOrderIdPreferences(this);
+
     @OneToOne
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Company company;

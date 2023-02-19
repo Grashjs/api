@@ -29,6 +29,8 @@ public class WorkOrder extends WorkOrderBase {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    private String customId;
+
     @ManyToOne
     private OwnUser completedBy;
 
