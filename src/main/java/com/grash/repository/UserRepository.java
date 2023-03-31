@@ -21,11 +21,11 @@ public interface UserRepository extends JpaRepository<OwnUser, Long>, JpaSpecifi
 
     boolean existsByEmail(String email);
 
-    Collection<OwnUser> findByCompany_Id(Long id);
+    Collection<OwnUser> findByCompanyId(Long id);
 
     Collection<OwnUser> findByLocation_Id(Long id);
 
-    Optional<OwnUser> findByEmailAndCompany_Id(String email, Long companyId);
+    Optional<OwnUser> findByEmailAndCompanyId(String email, Long companyId);
 
-    Optional<OwnUser> findByIdAndCompany_Id(Long id, Long companyId);
+    Optional<OwnUser> findByIdAndCompanyId(Long id, Long companyId);
 }

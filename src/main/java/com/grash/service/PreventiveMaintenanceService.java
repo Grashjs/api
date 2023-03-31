@@ -65,19 +65,19 @@ public class PreventiveMaintenanceService {
     }
 
     public Collection<PreventiveMaintenance> findByCompany(Long id) {
-        return preventiveMaintenanceRepository.findByCompany_Id(id);
+        return preventiveMaintenanceRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, PreventiveMaintenance preventiveMaintenance) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(preventiveMaintenance.getCompany().getId());
+        } else return user.getCompany().getId().equals(preventiveMaintenance.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, PreventiveMaintenance preventiveMaintenanceReq) {
         Long companyId = user.getCompany().getId();
 
-        boolean first = companyService.isCompanyValid(preventiveMaintenanceReq.getCompany(), companyId);
+        boolean first = preventiveMaintenanceReq.getCompanyId().equals(companyId);
         return first && canPatch(user, preventiveMaintenanceMapper.toPatchDto(preventiveMaintenanceReq));
     }
 
@@ -100,10 +100,10 @@ public class PreventiveMaintenanceService {
     public boolean isPreventiveMaintenanceInCompany(PreventiveMaintenance preventiveMaintenance, long companyId, boolean optional) {
         if (optional) {
             Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenance == null ? Optional.empty() : findById(preventiveMaintenance.getId());
-            return preventiveMaintenance == null || (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().getCompany().getId().equals(companyId));
+            return preventiveMaintenance == null || (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().getCompanyId().equals(companyId));
         } else {
             Optional<PreventiveMaintenance> optionalPreventiveMaintenance = findById(preventiveMaintenance.getId());
-            return optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().getCompany().getId().equals(companyId);
+            return optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().getCompanyId().equals(companyId);
         }
     }
 }

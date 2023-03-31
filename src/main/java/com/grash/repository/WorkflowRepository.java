@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Collection;
 
 public interface WorkflowRepository extends JpaRepository<Workflow, Long> {
-    Collection<Workflow> findByCompany_Id(Long id);
+    Collection<Workflow> findByCompanyId(Long id);
 
-    Collection<Workflow> findByMainConditionAndCompany_Id(WFMainCondition mainCondition, Long companyId);
+    Collection<Workflow> findByMainConditionAndCompanyId(WFMainCondition mainCondition, Long companyId);
 }

@@ -57,7 +57,7 @@ public class FloorPlanService {
     public boolean hasAccess(OwnUser user, FloorPlan floorPlan) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(floorPlan.getLocation().getCompany().getId());
+        } else return user.getCompany().getId().equals(floorPlan.getLocation().getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, FloorPlan floorPlanReq) {

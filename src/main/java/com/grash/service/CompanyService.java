@@ -62,9 +62,4 @@ public class CompanyService {
             return updatedCompany;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
-
-    public boolean isCompanyValid(Company company, long companyId) {
-        Optional<Company> optionalCompany = findById(company.getId());
-        return optionalCompany.isPresent() && optionalCompany.get().getId().equals(companyId);
-    }
 }

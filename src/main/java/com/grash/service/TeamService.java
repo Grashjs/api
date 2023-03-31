@@ -81,19 +81,19 @@ public class TeamService {
     }
 
     public Collection<Team> findByCompany(Long id) {
-        return teamRepository.findByCompany_Id(id);
+        return teamRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, Team team) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(team.getCompany().getId());
+        } else return user.getCompany().getId().equals(team.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Team teamReq) {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
-        boolean first = companyService.isCompanyValid(teamReq.getCompany(), companyId);
+        boolean first = teamReq.getCompanyId().equals(companyId);
         boolean second = user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS);
         boolean third = teamReq.getUsers() == null || teamReq.getUsers().stream().allMatch(item ->
                 userService.isUserInCompany(item, companyId, false));
@@ -132,10 +132,10 @@ public class TeamService {
     public boolean isTeamInCompany(Team team, long companyId, boolean optional) {
         if (optional) {
             Optional<Team> optionalTeam = team == null ? Optional.empty() : findById(team.getId());
-            return team == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
+            return team == null || (optionalTeam.isPresent() && optionalTeam.get().getCompanyId().equals(companyId));
         } else {
             Optional<Team> optionalTeam = findById(team.getId());
-            return optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId);
+            return optionalTeam.isPresent() && optionalTeam.get().getCompanyId().equals(companyId);
         }
     }
 
@@ -152,6 +152,6 @@ public class TeamService {
     }
 
     public Optional<Team> findByNameAndCompany(String teamName, Long id) {
-        return teamRepository.findByNameAndCompany_Id(teamName, id);
+        return teamRepository.findByNameAndCompanyId(teamName, id);
     }
 }

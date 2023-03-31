@@ -46,7 +46,7 @@ public class WorkflowActionService {
     public boolean hasAccess(OwnUser user, WorkflowAction workflowAction) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(workflowAction.getCompany().getId());
+        } else return user.getCompany().getId().equals(workflowAction.getCompanyId());
     }
 
     public boolean canPatch(OwnUser user, WorkflowActionPatchDTO workflowAction) {

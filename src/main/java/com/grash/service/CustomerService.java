@@ -63,19 +63,19 @@ public class CustomerService {
     }
 
     public Collection<Customer> findByCompany(Long id) {
-        return customerRepository.findByCompany_Id(id);
+        return customerRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, Customer customer) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(customer.getCompany().getId());
+        } else return user.getCompany().getId().equals(customer.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Customer customerReq) {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
-        boolean first = companyService.isCompanyValid(customerReq.getCompany(), companyId);
+        boolean first = customerReq.getCompanyId().equals(companyId);
         boolean second = customerReq.getParts() == null || customerReq.getParts().stream().allMatch(item ->
                 partService.isPartInCompany(item, companyId, false));
         boolean third = customerReq.getLocations() == null || customerReq.getLocations().stream().allMatch(item ->
@@ -92,10 +92,10 @@ public class CustomerService {
     public boolean isCustomerInCompany(Customer customer, long companyId, boolean optional) {
         if (optional) {
             Optional<Customer> optionalCustomer = customer == null ? Optional.empty() : findById(customer.getId());
-            return customer == null || (optionalCustomer.isPresent() && optionalCustomer.get().getCompany().getId().equals(companyId));
+            return customer == null || (optionalCustomer.isPresent() && optionalCustomer.get().getCompanyId().equals(companyId));
         } else {
             Optional<Customer> optionalCustomer = findById(customer.getId());
-            return optionalCustomer.isPresent() && optionalCustomer.get().getCompany().getId().equals(companyId);
+            return optionalCustomer.isPresent() && optionalCustomer.get().getCompanyId().equals(companyId);
         }
     }
 
@@ -107,6 +107,6 @@ public class CustomerService {
     }
 
     public Optional<Customer> findByNameAndCompany(String name, Long companyId) {
-        return customerRepository.findByNameAndCompany_Id(name, companyId);
+        return customerRepository.findByNameAndCompanyId(name, companyId);
     }
 }

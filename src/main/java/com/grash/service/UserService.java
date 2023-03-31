@@ -141,11 +141,11 @@ public class UserService {
     }
 
     public Optional<OwnUser> findByEmailAndCompany(String email, Long companyId) {
-        return userRepository.findByEmailAndCompany_Id(email, companyId);
+        return userRepository.findByEmailAndCompanyId(email, companyId);
     }
 
     public Optional<OwnUser> findByIdAndCompany(Long id, Long companyId) {
-        return userRepository.findByIdAndCompany_Id(id, companyId);
+        return userRepository.findByIdAndCompanyId(id, companyId);
     }
 
     public OwnUser whoami(HttpServletRequest req) {
@@ -190,7 +190,7 @@ public class UserService {
     }
 
     public Collection<OwnUser> findByCompany(Long id) {
-        return userRepository.findByCompany_Id(id);
+        return userRepository.findByCompanyId(id);
     }
 
     public Collection<OwnUser> findByLocation(Long id) {

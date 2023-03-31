@@ -8,9 +8,9 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface MeterRepository extends JpaRepository<Meter, Long>, JpaSpecificationExecutor<Meter> {
-    Collection<Meter> findByCompany_Id(Long id);
+    Collection<Meter> findByCompanyId(Long id);
 
     Collection<Meter> findByAsset_Id(Long id);
 
-    Optional<Meter> findByIdAndCompany_Id(Long id, Long companyId);
+    Optional<Meter> findByIdAndCompanyId(Long id, Long companyId);
 }

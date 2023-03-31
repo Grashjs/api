@@ -89,11 +89,11 @@ public class AssetService {
     }
 
     public Optional<Asset> findByNfcIdAndCompany(String nfcId, Long companyId) {
-        return assetRepository.findByNfcIdAndCompany_Id(nfcId, companyId);
+        return assetRepository.findByNfcIdAndCompanyId(nfcId, companyId);
     }
 
     public Collection<Asset> findByCompany(Long id) {
-        return assetRepository.findByCompany_Id(id);
+        return assetRepository.findByCompanyId(id);
     }
 
     public Collection<Asset> findAssetChildren(Long id) {
@@ -103,13 +103,13 @@ public class AssetService {
     public boolean hasAccess(OwnUser user, Asset asset) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(asset.getCompany().getId());
+        } else return user.getCompany().getId().equals(asset.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Asset assetReq) {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
-        boolean first = companyService.isCompanyValid(assetReq.getCompany(), companyId);
+        boolean first = assetReq.getCompanyId().equals(companyId);
 
         return first && canPatch(user, assetMapper.toPatchDto(assetReq));
     }
@@ -177,7 +177,7 @@ public class AssetService {
                 .startsOn(new Date())
                 .asset(asset)
                 .build();
-        assetDowntime.setCompany(asset.getCompany());
+        assetDowntime.setCompanyId(asset.getCompanyId());
         assetDowntimeService.create(assetDowntime);
         asset.setStatus(AssetStatus.DOWN);
         save(asset);
@@ -189,10 +189,10 @@ public class AssetService {
     public boolean isAssetInCompany(Asset asset, long companyId, boolean optional) {
         if (optional) {
             Optional<Asset> optionalAsset = asset == null ? Optional.empty() : findById(asset.getId());
-            return asset == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
+            return asset == null || (optionalAsset.isPresent() && optionalAsset.get().getCompanyId().equals(companyId));
         } else {
             Optional<Asset> optionalAsset = findById(asset.getId());
-            return optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
+            return optionalAsset.isPresent() && optionalAsset.get().getCompanyId().equals(companyId);
         }
     }
 
@@ -204,7 +204,7 @@ public class AssetService {
     }
 
     public Optional<Asset> findByNameAndCompany(String assetName, Long companyId) {
-        return assetRepository.findByNameAndCompany_Id(assetName, companyId);
+        return assetRepository.findByNameAndCompanyId(assetName, companyId);
     }
 
     public void importAsset(Asset asset, AssetImportDTO dto, Company company) {
@@ -256,10 +256,10 @@ public class AssetService {
     }
 
     public Optional<Asset> findByIdAndCompany(Long id, Long companyId) {
-        return assetRepository.findByIdAndCompany_Id(id, companyId);
+        return assetRepository.findByIdAndCompanyId(id, companyId);
     }
 
     public Optional<Asset> findByBarcodeAndCompany(String data, Long id) {
-        return assetRepository.findByBarCodeAndCompany_Id(data, id);
+        return assetRepository.findByBarCodeAndCompanyId(data, id);
     }
 }

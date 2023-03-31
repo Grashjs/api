@@ -72,7 +72,7 @@ public class WorkOrderHistoryController {
     private boolean hasAccess(OwnUser user, WorkOrderHistory workOrderHistory) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(workOrderHistory.getWorkOrder().getCompany().getId());
+        } else return user.getCompany().getId().equals(workOrderHistory.getWorkOrder().getCompanyId());
     }
 
 }

@@ -48,7 +48,7 @@ public class PartQuantityService {
     }
 
     public Collection<PartQuantity> findByCompany(Long id) {
-        return partQuantityRepository.findByCompany_Id(id);
+        return partQuantityRepository.findByCompanyId(id);
     }
 
     public Collection<PartQuantity> findByWorkOrder(Long id) {
@@ -58,13 +58,13 @@ public class PartQuantityService {
     public boolean hasAccess(OwnUser user, PartQuantity partQuantity) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(partQuantity.getCompany().getId());
+        } else return user.getCompany().getId().equals(partQuantity.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, PartQuantity partQuantityReq) {
         Long companyId = user.getCompany().getId();
-        
-        boolean first = companyService.isCompanyValid(partQuantityReq.getCompany(), companyId);
+
+        boolean first = partQuantityReq.getCompanyId().equals(companyId);
         boolean second = partService.isPartInCompany(partQuantityReq.getPart(), companyId, false);
         boolean third = purchaseOrderService.isPurchaseOrderInCompany(partQuantityReq.getPurchaseOrder(), companyId, true);
         boolean fourth = workOrderService.isWorkOrderInCompany(partQuantityReq.getWorkOrder(), companyId, true);

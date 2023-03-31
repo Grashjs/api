@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Date;
 
 public interface RequestRepository extends JpaRepository<Request, Long>, JpaSpecificationExecutor<Request> {
-    Collection<Request> findByCompany_Id(@Param("x") Long id);
+    Collection<Request> findByCompanyId(@Param("x") Long id);
 
-    Collection<Request> findByCreatedAtBetweenAndCompany_Id(Date date1, Date date2, Long id);
+    Collection<Request> findByCreatedAtBetweenAndCompanyId(Date date1, Date date2, Long id);
 }

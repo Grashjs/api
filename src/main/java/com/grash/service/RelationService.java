@@ -62,13 +62,13 @@ public class RelationService {
     }
 
     public Collection<Relation> findByCompany(Long id) {
-        return relationRepository.findByCompany_Id(id);
+        return relationRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, Relation relation) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(relation.getChild().getCompany().getId());
+        } else return user.getCompany().getId().equals(relation.getChild().getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, RelationPostDTO relationReq) {
@@ -97,7 +97,7 @@ public class RelationService {
                 .parent(parent)
                 .child(child)
                 .relationType(relationType).build();
-        relation.setCompany(relationReq.getCompany());
+        relation.setCompanyId(relationReq.getCompany().getId());
         return create(relation);
     }
 

@@ -68,13 +68,13 @@ public class LaborService {
     public boolean hasAccess(OwnUser user, Labor labor) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(labor.getCompany().getId());
+        } else return user.getCompany().getId().equals(labor.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Labor laborReq) {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
-        boolean first = companyService.isCompanyValid(laborReq.getCompany(), companyId);
+        boolean first = laborReq.getCompanyId().equals(companyId);
         boolean second = workOrderService.isWorkOrderInCompany(laborReq.getWorkOrder(), companyId, false);
         return first && second && canPatch(user, laborMapper.toPatchDto(laborReq));
     }

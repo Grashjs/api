@@ -48,23 +48,23 @@ public class TaskOptionService {
     public boolean hasAccess(OwnUser user, TaskOption taskOption) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(taskOption.getCompany().getId());
+        } else return user.getCompany().getId().equals(taskOption.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, TaskOption taskOptionReq) {
         Long companyId = user.getCompany().getId();
 
-        boolean first = companyService.isCompanyValid(taskOptionReq.getCompany(), companyId);
+        boolean first = taskOptionReq.getCompanyId().equals(companyId);
         return first;
     }
 
-    public boolean isTaskOptionInCompany (TaskOption taskOption, long companyId, boolean optional){
-        if (optional){
+    public boolean isTaskOptionInCompany(TaskOption taskOption, long companyId, boolean optional) {
+        if (optional) {
             Optional<TaskOption> optionalTaskOption = taskOption == null ? Optional.empty() : findById(taskOption.getId());
             return taskOption == null || (optionalTaskOption.isPresent() && optionalTaskOption.get().getId().equals(companyId));
         } else {
             Optional<TaskOption> optionalTaskOption = findById(taskOption.getId());
-            return optionalTaskOption.isPresent() && optionalTaskOption.get().getCompany().getId().equals(companyId);
+            return optionalTaskOption.isPresent() && optionalTaskOption.get().getCompanyId().equals(companyId);
         }
     }
 

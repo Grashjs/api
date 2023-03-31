@@ -70,19 +70,19 @@ public class MeterService {
     }
 
     public Collection<Meter> findByCompany(Long id) {
-        return meterRepository.findByCompany_Id(id);
+        return meterRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, Meter meter) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(meter.getCompany().getId());
+        } else return user.getCompany().getId().equals(meter.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Meter meterReq) {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
-        boolean first = companyService.isCompanyValid(meterReq.getCompany(), companyId);
+        boolean first = meterReq.getCompanyId().equals(companyId);
         boolean second = assetService.isAssetInCompany(meterReq.getAsset(), companyId, false);
         return first && second && canPatch(user, meterMapper.toPatchDto(meterReq));
     }
@@ -125,10 +125,10 @@ public class MeterService {
     public boolean isMeterInCompany(Meter meter, long companyId, boolean optional) {
         if (optional) {
             Optional<Meter> optionalMeter = meter == null ? Optional.empty() : findById(meter.getId());
-            return meter == null || (optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId));
+            return meter == null || (optionalMeter.isPresent() && optionalMeter.get().getCompanyId().equals(companyId));
         } else {
             Optional<Meter> optionalMeter = findById(meter.getId());
-            return optionalMeter.isPresent() && optionalMeter.get().getCompany().getId().equals(companyId);
+            return optionalMeter.isPresent() && optionalMeter.get().getCompanyId().equals(companyId);
         }
     }
 
@@ -159,6 +159,6 @@ public class MeterService {
     }
 
     public Optional<Meter> findByIdAndCompany(Long id, Long companyId) {
-        return meterRepository.findByIdAndCompany_Id(id, companyId);
+        return meterRepository.findByIdAndCompanyId(id, companyId);
     }
 }

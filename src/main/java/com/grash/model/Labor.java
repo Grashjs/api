@@ -51,7 +51,7 @@ public class Labor extends Time {
         this.hourlyRate = hourlyRate;
         this.startedAt = startedAt;
         this.workOrder = workOrder;
-        this.setCompany(company);
+        this.setCompanyId(company.getId());
         this.status = status;
         this.logged = logged;
     }

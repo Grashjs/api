@@ -53,13 +53,13 @@ public class WorkflowService {
     }
 
     public Collection<Workflow> findByMainConditionAndCompany(WFMainCondition mainCondition, Long id) {
-        return workflowRepository.findByMainConditionAndCompany_Id(mainCondition, id);
+        return workflowRepository.findByMainConditionAndCompanyId(mainCondition, id);
     }
 
     public boolean hasAccess(OwnUser user, Workflow workflow) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(workflow.getCompany().getId());
+        } else return user.getCompany().getId().equals(workflow.getCompanyId());
     }
 
     public boolean canPatch(OwnUser user, WorkflowPostDTO workflow) {
@@ -67,7 +67,7 @@ public class WorkflowService {
     }
 
     public Collection<Workflow> findByCompany(Long id) {
-        return workflowRepository.findByCompany_Id(id);
+        return workflowRepository.findByCompanyId(id);
     }
 
     public void runWorkOrder(Workflow workflow, WorkOrder workOrder) {

@@ -58,13 +58,13 @@ public class FileService {
     }
 
     public Collection<File> findByCompany(Long id) {
-        return fileRepository.findByCompany_Id(id);
+        return fileRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, File file) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(file.getCompany().getId());
+        } else return user.getCompany().getId().equals(file.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, File fileReq) {
@@ -85,10 +85,10 @@ public class FileService {
     public boolean isFileInCompany(File file, long companyId, boolean optional) {
         if (optional) {
             Optional<File> optionalFile = file == null ? Optional.empty() : findById(file.getId());
-            return file == null || (optionalFile.isPresent() && optionalFile.get().getCompany().getId().equals(companyId));
+            return file == null || (optionalFile.isPresent() && optionalFile.get().getCompanyId().equals(companyId));
         } else {
             Optional<File> optionalFile = findById(file.getId());
-            return optionalFile.isPresent() && optionalFile.get().getCompany().getId().equals(companyId);
+            return optionalFile.isPresent() && optionalFile.get().getCompanyId().equals(companyId);
         }
     }
 

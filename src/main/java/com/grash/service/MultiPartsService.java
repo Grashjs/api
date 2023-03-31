@@ -55,25 +55,25 @@ public class MultiPartsService {
     }
 
     public Collection<MultiParts> findByCompany(Long id) {
-        return multiPartsRepository.findByCompany_Id(id);
+        return multiPartsRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, MultiParts multiParts) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(multiParts.getCompany().getId());
+        } else return user.getCompany().getId().equals(multiParts.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, MultiParts multiPartsReq) {
         Long companyId = user.getCompany().getId();
-        boolean first = companyService.isCompanyValid(multiPartsReq.getCompany(), companyId);
+        boolean first = multiPartsReq.getCompanyId().equals(companyId);
         return first && canPatch(user, multiPartsMapper.toPatchDto(multiPartsReq));
     }
 
     public boolean canPatch(OwnUser user, MultiPartsPatchDTO multiPartsReq) {
         Long companyId = user.getCompany().getId();
         boolean first = multiPartsReq.getParts() == null || multiPartsReq.getParts().stream().allMatch(item ->
-                partService.isPartInCompany(item,companyId,false));
+                partService.isPartInCompany(item, companyId, false));
         return first;
     }
 }

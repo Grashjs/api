@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.Optional;
 
 public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, JpaSpecificationExecutor<WorkOrder> {
-    Collection<WorkOrder> findByCompany_Id(Long id);
+    Collection<WorkOrder> findByCompanyId(Long id);
 
     Collection<WorkOrder> findByAsset_Id(Long id);
 
@@ -22,17 +22,17 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
 
     Collection<WorkOrder> findByCompletedBy_Id(Long id);
 
-    Collection<WorkOrder> findByPriorityAndCompany_Id(Priority priority, Long companyId);
+    Collection<WorkOrder> findByPriorityAndCompanyId(Priority priority, Long companyId);
 
     Collection<WorkOrder> findByCategory_Id(Long id);
 
-    Collection<WorkOrder> findByCompletedOnBetweenAndCompany_Id(Date date1, Date date2, Long id);
+    Collection<WorkOrder> findByCompletedOnBetweenAndCompanyId(Date date1, Date date2, Long id);
 
     Collection<WorkOrder> findByCreatedBy(Long id);
 
-    Collection<WorkOrder> findByDueDateBetweenAndCompany_Id(Date date1, Date date2, Long id);
+    Collection<WorkOrder> findByDueDateBetweenAndCompanyId(Date date1, Date date2, Long id);
 
-    Optional<WorkOrder> findByIdAndCompany_Id(Long id, Long companyId);
+    Optional<WorkOrder> findByIdAndCompanyId(Long id, Long companyId);
 
     Collection<WorkOrder> findByCreatedByAndCreatedAtBetween(Long id, Date date1, Date date2);
 

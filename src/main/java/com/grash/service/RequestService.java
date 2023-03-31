@@ -69,19 +69,19 @@ public class RequestService {
     }
 
     public Collection<Request> findByCompany(Long id) {
-        return requestRepository.findByCompany_Id(id);
+        return requestRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, Request request) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(request.getCompany().getId());
+        } else return user.getCompany().getId().equals(request.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Request requestReq) {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
-        boolean first = companyService.isCompanyValid(requestReq.getCompany(), companyId);
+        boolean first = requestReq.getCompanyId().equals(companyId);
         return first && canPatch(user, requestMapper.toPatchDto(requestReq));
     }
 
@@ -105,7 +105,7 @@ public class RequestService {
         }
         workOrder.setParentRequest(request);
         WorkOrder savedWorkOrder = workOrderService.create(workOrder);
-        workOrderService.notify(savedWorkOrder, Helper.getLocale(savedWorkOrder.getCompany()));
+        workOrderService.notify(savedWorkOrder, Helper.getLocale(companyService.findById(savedWorkOrder.getCompanyId()).get()));
         request.setWorkOrder(savedWorkOrder);
         requestRepository.save(request);
 
@@ -117,7 +117,7 @@ public class RequestService {
     }
 
     public Collection<Request> findByCreatedAtBetweenAndCompany(Date date1, Date date2, Long id) {
-        return requestRepository.findByCreatedAtBetweenAndCompany_Id(date1, date2, id);
+        return requestRepository.findByCreatedAtBetweenAndCompanyId(date1, date2, id);
     }
 
     public Page<RequestShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
@@ -127,13 +127,13 @@ public class RequestService {
         return requestRepository.findAll(builder.build(), page).map(requestMapper::toShowDto);
     }
 
-    public boolean isRequestInCompany(Request request, long companyId, boolean optional){
-        if (optional){
+    public boolean isRequestInCompany(Request request, long companyId, boolean optional) {
+        if (optional) {
             Optional<Request> optionalRequest = request == null ? Optional.empty() : findById(request.getId());
-            return request == null || (optionalRequest.isPresent() && optionalRequest.get().getCompany().getId().equals(companyId));
+            return request == null || (optionalRequest.isPresent() && optionalRequest.get().getCompanyId().equals(companyId));
         } else {
             Optional<Request> optionalRequest = findById(request.getId());
-            return optionalRequest.isPresent() && optionalRequest.get().getCompany().getId().equals(companyId);
+            return optionalRequest.isPresent() && optionalRequest.get().getCompanyId().equals(companyId);
         }
     }
 }

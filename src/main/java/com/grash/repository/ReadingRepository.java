@@ -8,8 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.Collection;
 
 public interface ReadingRepository extends JpaRepository<Reading, Long> {
-    @Query("SELECT r from Reading r where r.meter.company.id = :x ")
-    Collection<Reading> findByCompany_Id(@Param("x") Long id);
+    @Query("SELECT r from Reading r where r.meter.companyId.id = :x ")
+    Collection<Reading> findByCompanyId(@Param("x") Long id);
 
     Collection<Reading> findByMeter_Id(Long id);
 }

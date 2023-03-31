@@ -8,5 +8,5 @@ import org.springframework.data.repository.query.Param;
 import java.util.Collection;
 
 public interface PreventiveMaintenanceRepository extends JpaRepository<PreventiveMaintenance, Long>, JpaSpecificationExecutor<PreventiveMaintenance> {
-    Collection<PreventiveMaintenance> findByCompany_Id(@Param("x") Long id);
+    Collection<PreventiveMaintenance> findByCompanyId(@Param("x") Long id);
 }

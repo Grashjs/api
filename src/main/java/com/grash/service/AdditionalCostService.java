@@ -61,7 +61,7 @@ public class AdditionalCostService {
     public boolean hasAccess(OwnUser user, AdditionalCost additionalCost) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(additionalCost.getWorkOrder().getCompany().getId());
+        } else return user.getCompany().getId().equals(additionalCost.getWorkOrder().getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, AdditionalCost additionalCostReq) {

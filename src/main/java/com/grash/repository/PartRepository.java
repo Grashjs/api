@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface PartRepository extends JpaRepository<Part, Long>, JpaSpecificationExecutor<Part> {
-    Collection<Part> findByCompany_Id(@Param("x") Long id);
+    Collection<Part> findByCompanyId(@Param("x") Long id);
 
-    Optional<Part> findByIdAndCompany_Id(Long id, Long companyId);
+    Optional<Part> findByIdAndCompanyId(Long id, Long companyId);
 }

@@ -19,7 +19,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
-    private final PreventiveMaintenanceService preventiveMaintenanceService;
+    private final CompanyService companyService;
     private final ScheduleMapper scheduleMapper;
     private final WorkOrderService workOrderService;
 
@@ -49,13 +49,13 @@ public class ScheduleService {
     }
 
     public Collection<Schedule> findByCompany(Long id) {
-        return scheduleRepository.findByCompany_Id(id);
+        return scheduleRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, Schedule schedule) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(schedule.getPreventiveMaintenance().getCompany().getId());
+        } else return user.getCompany().getId().equals(schedule.getPreventiveMaintenance().getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Schedule scheduleReq) {
@@ -84,7 +84,7 @@ public class ScheduleService {
                         workOrder.setDueDate(Helper.incrementDays(new Date(), schedule.getDueDateDelay()));
                     }
                     WorkOrder savedWorkOrder = workOrderService.create(workOrder);
-                    workOrderService.notify(savedWorkOrder, Helper.getLocale(workOrder.getCompany()));
+                    workOrderService.notify(savedWorkOrder, Helper.getLocale(companyService.findById(workOrder.getCompanyId()).get()));
                 }
             };
             timer.scheduleAtFixedRate(timerTask, startsOn, (long) schedule.getFrequency() * 24 * 60 * 60 * 1000);

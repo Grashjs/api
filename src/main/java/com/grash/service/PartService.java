@@ -96,19 +96,19 @@ public class PartService {
     }
 
     public Collection<Part> findByCompany(Long id) {
-        return partRepository.findByCompany_Id(id);
+        return partRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, Part part) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(part.getCompany().getId());
+        } else return user.getCompany().getId().equals(part.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Part partReq) {
         Long companyId = user.getCompany().getId();
 
-        boolean first = companyService.isCompanyValid(partReq.getCompany(), companyId);
+        boolean first = partReq.getCompanyId().equals(companyId);
         return first && canPatch(user, partMapper.toPatchDto(partReq));
     }
 
@@ -150,10 +150,10 @@ public class PartService {
     public boolean isPartInCompany(Part part, long companyId, boolean optional) {
         if (optional) {
             Optional<Part> optionalPart = part == null ? Optional.empty() : findById(part.getId());
-            return part == null || (optionalPart.isPresent() && optionalPart.get().getCompany().getId().equals(companyId));
+            return part == null || (optionalPart.isPresent() && optionalPart.get().getCompanyId().equals(companyId));
         } else {
             Optional<Part> optionalPart = findById(part.getId());
-            return optionalPart.isPresent() && optionalPart.get().getCompany().getId().equals(companyId);
+            return optionalPart.isPresent() && optionalPart.get().getCompanyId().equals(companyId);
         }
     }
 
@@ -207,6 +207,6 @@ public class PartService {
     }
 
     public Optional<Part> findByIdAndCompany(Long id, Long companyId) {
-        return partRepository.findByIdAndCompany_Id(id, companyId);
+        return partRepository.findByIdAndCompanyId(id, companyId);
     }
 }

@@ -33,17 +33,17 @@ public class PartConsumptionService {
     }
 
     public Collection<PartConsumption> findByCompany(Long id) {
-        return partConsumptionRepository.findByCompany_Id(id);
+        return partConsumptionRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, PartConsumption partConsumption) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(partConsumption.getCompany().getId());
+        } else return user.getCompany().getId().equals(partConsumption.getCompanyId());
     }
 
     public Collection<PartConsumption> findByCreatedAtBetweenAndCompany(Date date1, Date date2, Long id) {
-        return partConsumptionRepository.findByCreatedAtBetweenAndCompany_Id(date1, date2, id);
+        return partConsumptionRepository.findByCreatedAtBetweenAndCompanyId(date1, date2, id);
     }
 
     public Collection<PartConsumption> findByWorkOrderAndPart(Long workOrderId, Long partId) {

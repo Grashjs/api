@@ -97,6 +97,6 @@ public class File extends CompanyAudit {
         this.type = fileType;
         this.task = task;
         this.hidden = hidden;
-        this.setCompany(company);
+        this.setCompanyId(company.getId());
     }
 }

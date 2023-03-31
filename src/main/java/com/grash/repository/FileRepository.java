@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Collection;
 
 public interface FileRepository extends JpaRepository<File, Long>, JpaSpecificationExecutor<File> {
-    Collection<File> findByCompany_Id(Long id);
+    Collection<File> findByCompanyId(Long id);
 }

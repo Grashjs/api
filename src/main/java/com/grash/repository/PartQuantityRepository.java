@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Collection;
 
 public interface PartQuantityRepository extends JpaRepository<PartQuantity, Long> {
-    Collection<PartQuantity> findByCompany_Id(Long id);
+    Collection<PartQuantity> findByCompanyId(Long id);
 
     Collection<PartQuantity> findByWorkOrder_Id(Long id);
 

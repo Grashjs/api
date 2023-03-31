@@ -47,7 +47,7 @@ public class CustomFieldService {
     public boolean hasAccess(OwnUser user, CustomField customField) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(customField.getVendor().getCompany().getId());
+        } else return user.getCompany().getId().equals(customField.getVendor().getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, CustomField customFieldReq) {

@@ -61,21 +61,21 @@ public class PurchaseOrderService {
     }
 
     public Collection<PurchaseOrder> findByCompany(Long id) {
-        return purchaseOrderRepository.findByCompany_Id(id);
+        return purchaseOrderRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, PurchaseOrder purchaseOrder) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(purchaseOrder.getCompany().getId());
+        } else return user.getCompany().getId().equals(purchaseOrder.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, PurchaseOrder purchaseOrderReq) {
         Long companyId = user.getCompany().getId();
 
-        Optional<Company> optionalCompany = companyService.findById(purchaseOrderReq.getCompany().getId());
+        Optional<Company> optionalCompany = companyService.findById(purchaseOrderReq.getCompanyId());
 
-        boolean first = companyService.isCompanyValid(purchaseOrderReq.getCompany(), companyId);
+        boolean first = purchaseOrderReq.getCompanyId().equals(companyId);
         return first && canPatch(user, purchaseOrderMapper.toPatchDto(purchaseOrderReq));
     }
 
@@ -90,10 +90,10 @@ public class PurchaseOrderService {
     public boolean isPurchaseOrderInCompany(PurchaseOrder purchaseOrder, long companyId, boolean optional) {
         if (optional) {
             Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrder == null ? Optional.empty() : findById(purchaseOrder.getId());
-            return purchaseOrder == null || (optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId));
+            return purchaseOrder == null || (optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompanyId().equals(companyId));
         } else {
             Optional<PurchaseOrder> optionalPurchaseOrder = findById(purchaseOrder.getId());
-            return optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId);
+            return optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompanyId().equals(companyId);
         }
     }
 

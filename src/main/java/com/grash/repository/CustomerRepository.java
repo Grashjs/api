@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSpecificationExecutor<Customer> {
-    Collection<Customer> findByCompany_Id(Long id);
+    Collection<Customer> findByCompanyId(Long id);
 
-    Optional<Customer> findByNameAndCompany_Id(String name, Long companyId);
+    Optional<Customer> findByNameAndCompanyId(String name, Long companyId);
 }

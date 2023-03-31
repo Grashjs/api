@@ -69,19 +69,19 @@ public class LocationService {
     }
 
     public Collection<Location> findByCompany(Long id) {
-        return locationRepository.findByCompany_Id(id);
+        return locationRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, Location location) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(location.getCompany().getId());
+        } else return user.getCompany().getId().equals(location.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Location locationReq) {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
-        boolean first = companyService.isCompanyValid(locationReq.getCompany(), companyId);
+        boolean first = locationReq.getCompanyId().equals(companyId);
 
 
         return first && canPatch(user, locationMapper.toPatchDto(locationReq));
@@ -128,15 +128,15 @@ public class LocationService {
     public boolean isLocationInCompany(Location location, long companyId, boolean optional) {
         if (optional) {
             Optional<Location> optionalLocation = location == null ? Optional.empty() : findById(location.getId());
-            return location == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
+            return location == null || (optionalLocation.isPresent() && optionalLocation.get().getCompanyId().equals(companyId));
         } else {
             Optional<Location> optionalLocation = findById(location.getId());
-            return optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
+            return optionalLocation.isPresent() && optionalLocation.get().getCompanyId().equals(companyId);
         }
     }
 
     public Optional<Location> findByNameAndCompany(String locationName, Long companyId) {
-        return locationRepository.findByNameAndCompany_Id(locationName, companyId);
+        return locationRepository.findByNameAndCompanyId(locationName, companyId);
     }
 
     public void importLocation(Location location, LocationImportDTO dto, Company company) {
@@ -175,7 +175,7 @@ public class LocationService {
     }
 
     public Optional<Location> findByIdAndCompany(Long id, Long companyId) {
-        return locationRepository.findByIdAndCompany_Id(id, companyId);
+        return locationRepository.findByIdAndCompanyId(id, companyId);
     }
 
     public Page<LocationShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {

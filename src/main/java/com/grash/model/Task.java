@@ -52,6 +52,6 @@ public class Task extends CompanyAudit {
         this.workOrder = workOrder;
         this.value = value;
         this.preventiveMaintenance = preventiveMaintenance;
-        this.setCompany(company);
+        this.setCompanyId(company.getId());
     }
 }

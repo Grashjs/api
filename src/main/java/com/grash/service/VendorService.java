@@ -63,19 +63,19 @@ public class VendorService {
     }
 
     public Collection<Vendor> findByCompany(Long id) {
-        return vendorRepository.findByCompany_Id(id);
+        return vendorRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, Vendor vendor) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(vendor.getCompany().getId());
+        } else return user.getCompany().getId().equals(vendor.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Vendor vendorReq) {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
-        boolean first = companyService.isCompanyValid(vendorReq.getCompany(), companyId);
+        boolean first = vendorReq.getCompanyId().equals(companyId);
         boolean second = vendorReq.getAssets() == null || vendorReq.getAssets().stream().allMatch(item ->
                 assetService.isAssetInCompany(item, companyId, false));
         boolean third = vendorReq.getParts() == null || vendorReq.getParts().stream().allMatch(item ->
@@ -93,10 +93,10 @@ public class VendorService {
     public boolean isVendorInCompany(Vendor vendor, long companyId, boolean optional) {
         if (optional) {
             Optional<Vendor> optionalVendor = vendor == null ? Optional.empty() : findById(vendor.getId());
-            return vendor == null || (optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId));
+            return vendor == null || (optionalVendor.isPresent() && optionalVendor.get().getCompanyId().equals(companyId));
         } else {
             Optional<Vendor> optionalVendor = findById(vendor.getId());
-            return optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId);
+            return optionalVendor.isPresent() && optionalVendor.get().getCompanyId().equals(companyId);
         }
     }
 
@@ -108,6 +108,6 @@ public class VendorService {
     }
 
     public Optional<Vendor> findByNameAndCompany(String name, Long companyId) {
-        return vendorRepository.findByNameAndCompany_Id(name, companyId);
+        return vendorRepository.findByNameAndCompanyId(name, companyId);
     }
 }

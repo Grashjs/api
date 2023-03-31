@@ -58,16 +58,16 @@ public class TaskService {
     public boolean hasAccess(OwnUser user, Task task) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(task.getCompany().getId());
+        } else return user.getCompany().getId().equals(task.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Task taskReq) {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
-        boolean first = companyService.isCompanyValid(taskReq.getCompany(), companyId);
+        boolean first = taskReq.getCompanyId().equals(companyId);
         boolean second = workOrderService.isWorkOrderInCompany(taskReq.getWorkOrder(), companyId, false);
         boolean third = taskReq.getImages() == null || taskReq.getImages().stream().allMatch(item ->
-                fileService.isFileInCompany(item,companyId,false));
+                fileService.isFileInCompany(item, companyId, false));
         return first && second && third && canPatch(user, taskMapper.toPatchDto(taskReq));
     }
 

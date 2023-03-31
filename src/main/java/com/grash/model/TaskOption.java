@@ -27,6 +27,6 @@ public class TaskOption extends CompanyAudit {
     public TaskOption(String label, Company company, TaskBase taskBase) {
         this.label = label;
         this.taskBase = taskBase;
-        this.setCompany(company);
+        this.setCompanyId(company.getId());
     }
 }

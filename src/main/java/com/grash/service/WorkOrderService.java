@@ -103,23 +103,23 @@ public class WorkOrderService {
     }
 
     public Optional<WorkOrder> findByIdAndCompany(Long id, Long companyId) {
-        return workOrderRepository.findByIdAndCompany_Id(id, companyId);
+        return workOrderRepository.findByIdAndCompanyId(id, companyId);
     }
 
     public Collection<WorkOrder> findByCompany(Long id) {
-        return workOrderRepository.findByCompany_Id(id);
+        return workOrderRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, WorkOrder workOrder) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(workOrder.getCompany().getId());
+        } else return user.getCompany().getId().equals(workOrder.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, WorkOrder workOrderReq) {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
-        boolean first = companyService.isCompanyValid(workOrderReq.getCompany(), companyId);
+        boolean first = workOrderReq.getCompanyId().equals(companyId);
 
         return first && canPatch(user, workOrderMapper.toPatchDto(workOrderReq));
     }
@@ -153,7 +153,7 @@ public class WorkOrderService {
 
     public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder, Locale locale) {
         String title = messageSource.getMessage("new_assignment", null, locale);
-        String message = messageSource.getMessage("notification_wo_assigned", new Object[]{newWorkOrder.getTitle()}, Helper.getLocale(newWorkOrder.getCompany()));
+        String message = messageSource.getMessage("notification_wo_assigned", new Object[]{newWorkOrder.getTitle()}, Helper.getLocale(companyService.findById(newWorkOrder.getCompanyId()).get()));
         notificationService.createMultiple(oldWorkOrder.getNewUsersToNotify(newWorkOrder.getUsers()).stream().map(user ->
                 new Notification(message, user, NotificationType.WORK_ORDER, newWorkOrder.getId())).collect(Collectors.toList()), true, title);
     }
@@ -183,7 +183,7 @@ public class WorkOrderService {
 
     public WorkOrder getWorkOrderFromWorkOrderBase(WorkOrderBase workOrderBase) {
         WorkOrder workOrder = new WorkOrder();
-        workOrder.setCompany(workOrderBase.getCompany());
+        workOrder.setCompanyId(workOrderBase.getCompanyId());
         workOrder.setTitle(workOrderBase.getTitle());
         workOrder.setDescription(workOrderBase.getDescription());
         workOrder.setPriority(workOrderBase.getPriority());
@@ -206,7 +206,7 @@ public class WorkOrderService {
     }
 
     public Collection<WorkOrder> findByPriorityAndCompany(Priority priority, Long companyId) {
-        return workOrderRepository.findByPriorityAndCompany_Id(priority, companyId);
+        return workOrderRepository.findByPriorityAndCompanyId(priority, companyId);
     }
 
     public Collection<WorkOrder> findByCategory(Long id) {
@@ -214,7 +214,7 @@ public class WorkOrderService {
     }
 
     public Collection<WorkOrder> findByCompletedOnBetweenAndCompany(Date date1, Date date2, Long companyId) {
-        return workOrderRepository.findByCompletedOnBetweenAndCompany_Id(date1, date2, companyId);
+        return workOrderRepository.findByCompletedOnBetweenAndCompanyId(date1, date2, companyId);
     }
 
     public Pair<Long, Long> getLaborCostAndTime(Collection<WorkOrder> workOrders) {
@@ -263,15 +263,15 @@ public class WorkOrderService {
     public boolean isWorkOrderInCompany(WorkOrder workOrder, long companyId, boolean optional) {
         if (optional) {
             Optional<WorkOrder> optionalWorkOrder = workOrder == null ? Optional.empty() : findById(workOrder.getId());
-            return workOrder == null || (optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId));
+            return workOrder == null || (optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompanyId().equals(companyId));
         } else {
             Optional<WorkOrder> optionalWorkOrder = findById(workOrder.getId());
-            return optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompany().getId().equals(companyId);
+            return optionalWorkOrder.isPresent() && optionalWorkOrder.get().getCompanyId().equals(companyId);
         }
     }
 
     public Collection<WorkOrder> findByDueDateBetweenAndCompany(Date date1, Date date2, Long id) {
-        return workOrderRepository.findByDueDateBetweenAndCompany_Id(date1, date2, id);
+        return workOrderRepository.findByDueDateBetweenAndCompanyId(date1, date2, id);
     }
 
     public void importWorkOrder(WorkOrder workOrder, WorkOrderImportDTO dto, Company company) {

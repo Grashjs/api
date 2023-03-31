@@ -8,18 +8,18 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecificationExecutor<Asset> {
-    Collection<Asset> findByCompany_Id(Long id);
+    Collection<Asset> findByCompanyId(Long id);
 
     Collection<Asset> findByParentAsset_Id(Long id);
 
     Collection<Asset> findByLocation_Id(Long id);
 
-    Optional<Asset> findByNameAndCompany_Id(String assetName, Long companyId);
+    Optional<Asset> findByNameAndCompanyId(String assetName, Long companyId);
 
-    Optional<Asset> findByIdAndCompany_Id(Long id, Long companyId);
+    Optional<Asset> findByIdAndCompanyId(Long id, Long companyId);
 
-    Optional<Asset> findByNfcIdAndCompany_Id(String nfcId, Long companyId);
+    Optional<Asset> findByNfcIdAndCompanyId(String nfcId, Long companyId);
 
-    Optional<Asset> findByBarCodeAndCompany_Id(String data, Long id);
+    Optional<Asset> findByBarCodeAndCompanyId(String data, Long id);
 }
 

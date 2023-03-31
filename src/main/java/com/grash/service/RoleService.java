@@ -50,7 +50,7 @@ public class RoleService {
     }
 
     public Collection<Role> findByCompany(Long id) {
-        return roleRepository.findByCompany_Id(id);
+        return roleRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, Role role) {

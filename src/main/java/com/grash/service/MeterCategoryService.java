@@ -50,7 +50,7 @@ public class MeterCategoryService {
     }
 
     public Collection<MeterCategory> findByCompany(Long id) {
-        return meterCategoryRepository.findByCompany_Id(id);
+        return meterCategoryRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, MeterCategory meterCategory) {

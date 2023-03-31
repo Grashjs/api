@@ -47,13 +47,13 @@ public class DeprecationService {
     public boolean hasAccess(OwnUser user, Deprecation deprecation) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(deprecation.getCompany().getId());
+        } else return user.getCompany().getId().equals(deprecation.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Deprecation deprecationReq) {
         Long companyId = user.getCompany().getId();
         //@NotNull fields
-        boolean first = companyService.isCompanyValid(deprecationReq.getCompany(), companyId);
+        boolean first = deprecationReq.getCompanyId().equals(companyId);
         return first && canPatch(user, deprecationMapper.toPatchDto(deprecationReq));
     }
 
@@ -64,10 +64,10 @@ public class DeprecationService {
     public boolean isDeprecationInCompany(Deprecation deprecation, long companyId, boolean optional) {
         if (optional) {
             Optional<Deprecation> optionalDeprecation = deprecation == null ? Optional.empty() : findById(deprecation.getId());
-            return deprecation == null || (optionalDeprecation.isPresent() && optionalDeprecation.get().getCompany().getId().equals(companyId));
+            return deprecation == null || (optionalDeprecation.isPresent() && optionalDeprecation.get().getCompanyId().equals(companyId));
         } else {
             Optional<Deprecation> optionalDeprecation = findById(deprecation.getId());
-            return optionalDeprecation.isPresent() && optionalDeprecation.get().getCompany().getId().equals(companyId);
+            return optionalDeprecation.isPresent() && optionalDeprecation.get().getCompanyId().equals(companyId);
         }
     }
 }

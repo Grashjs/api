@@ -53,13 +53,13 @@ public class ReadingService {
     }
 
     public Collection<Reading> findByCompany(Long id) {
-        return readingRepository.findByCompany_Id(id);
+        return readingRepository.findByCompanyId(id);
     }
 
     public boolean hasAccess(OwnUser user, Reading reading) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(reading.getMeter().getCompany().getId());
+        } else return user.getCompany().getId().equals(reading.getMeter().getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, Reading readingReq) {

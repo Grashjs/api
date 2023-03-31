@@ -56,7 +56,7 @@ public class WorkOrderMeterTriggerService {
     public boolean hasAccess(OwnUser user, WorkOrderMeterTrigger workOrderMeterTrigger) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
             return true;
-        } else return user.getCompany().getId().equals(workOrderMeterTrigger.getCompany().getId());
+        } else return user.getCompany().getId().equals(workOrderMeterTrigger.getCompanyId());
     }
 
     public boolean canCreate(OwnUser user, WorkOrderMeterTrigger workOrderMeterTriggerReq) {

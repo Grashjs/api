@@ -8,5 +8,5 @@ import org.springframework.data.repository.query.Param;
 import java.util.Collection;
 
 public interface PurchaseOrderRepository extends JpaRepository<PurchaseOrder, Long>, JpaSpecificationExecutor<PurchaseOrder> {
-    Collection<PurchaseOrder> findByCompany_Id(@Param("x") Long id);
+    Collection<PurchaseOrder> findByCompanyId(@Param("x") Long id);
 }
