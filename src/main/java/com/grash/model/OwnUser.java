@@ -7,17 +7,18 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class OwnUser extends Audit {
+public class OwnUser extends Audit implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -150,6 +151,27 @@ public class OwnUser extends Audit {
     @JsonIgnore
     public boolean isEnabledInSubscriptionAndPaid() {
         return enabledInSubscription && this.getRole().isPaid();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        return Collections.singleton(new SimpleGrantedAuthority(role.getRoleType().getAuthority()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return enabled;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
     }
 }
 
