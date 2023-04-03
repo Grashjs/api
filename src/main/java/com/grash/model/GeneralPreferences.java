@@ -19,9 +19,9 @@ public class GeneralPreferences {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Language language = Language.FR;
+    private Language language = Language.EN;
 
-    private DateFormat dateFormat = DateFormat.DDMMYY;
+    private DateFormat dateFormat = DateFormat.MMDDYY;
 
     @ManyToOne
     private Currency currency;
